@@ -8,6 +8,7 @@
 
 <style lang="scss">
 	.navbar {
+		position: fixed;
 		width: 100%;
 		height: 50px;
 
