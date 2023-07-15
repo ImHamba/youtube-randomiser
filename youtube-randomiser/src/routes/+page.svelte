@@ -2,27 +2,26 @@
 	import { enhance } from '$app/forms';
 	import type { ActionResult, SubmitFunction } from '@sveltejs/kit';
 
-	interface IVideoData {
-		success: boolean;
-		channelTitle: string;
-		title: string;
-		videoID: string;
-		thumbnailUrl: string;
-	}
-
-	interface IPlaylistData {
-		success: boolean;
-		message: IVideoData[];
-	}
+	import { fade, fly } from 'svelte/transition';
+	import { videoIDStore } from '$lib/store';
+	import PlaylistDisplay from '$lib/components/playlistDisplay.svelte';
+	import Layout from './+layout.svelte';
 
 	// return from form POST request is accessible through this special form prop
 	export let form: IPlaylistData;
 
 	let originalIDs: string[] = [];
+
 	let videoList: IVideoData[] = [];
+	videoIDStore.subscribe((videoIDs) => {
+		videoList = videoIDs;
+	});
 
 	const handleAddID: SubmitFunction = ({ formElement, formData, cancel }) => {
 		const ytMediaID = formData.get('ytMediaID')?.toString();
+
+		// TODO: add cache fetching for previously fetched media id's. Only accept cached playlist id's that are less than 5 or 10 min old, incase playlist is updated
+		// TODO: remove old playlist id's from cache if it is old enough
 
 		// if the id has already been included, dont include it again
 		// if the id is invalid youtube video or playlist id, cancel request
@@ -41,8 +40,12 @@
 			if (result.type === 'success' && result.data != null) {
 				if (result.data.success === true) {
 					// valid playlist or video id was found, update the video list
+
+					//update video id store
+					videoIDStore.update((currentData) => {
+						return [...(result.data?.message || []), ...currentData];
+					});
 					formElement.reset();
-					videoList = [...result.data.message, ...videoList];
 					originalIDs.push(ytMediaID);
 				} else {
 					// playlist or video id was invalid, prompt user to correct their input
@@ -63,14 +66,9 @@
 		return false;
 	};
 
-	let playlistDisplay: HTMLElement;
-	// $: if (videoList && playlistDisplay) {
-	// 	console.log('tick');
-	// 	scrollToBottom(playlistDisplay);
-	// }
-	// const scrollToBottom = async (node: HTMLElement) => {
-	// 	node.scroll({ top: node.scrollHeight, behavior: 'smooth' });
-	// };
+	const handleClearVideos = () => {
+		videoIDStore.set([]);
+	};
 </script>
 
 <div class="wrapper">
@@ -79,27 +77,20 @@
 	<div class="video-list">
 		<div class="playlist-input">
 			<form use:enhance={handleAddID} method="POST" action="?/getVideoList">
-				<input name="ytMediaID" type="text" placeholder="Enter a playlist or video ID or URL" />
 				<button class="add-btn">Add</button>
+				<input name="ytMediaID" type="text" placeholder="Enter a playlist or video ID or URL" />
 			</form>
 		</div>
-		<div class="playlist-display" bind:this={playlistDisplay}>
-			<ul>
-				{#each videoList as video}
-					<li>
-						<img src={video.thumbnailUrl} />
-						<div class="video-info">
-							<div class="video-title">{video.title}</div>
-							<div class="video-channel">
-								{video.channelTitle}
-							</div>
-						</div>
-					</li>
-				{/each}
-			</ul>
+		<div class="playlist-display-wrapper">
+			<PlaylistDisplay {videoList} />
 		</div>
 	</div>
-	<button>Shuffle</button>
+	<div class="btn-wrapper">
+		<button class="shuffle-btn" class:disabled={videoList.length == 0}>
+			<a href="/player" class:disabled={videoList.length == 0}>Shuffle</a>
+		</button>
+		<button class="clear-btn" on:click={handleClearVideos}>Clear</button>
+	</div>
 </div>
 
 <style lang="scss">
@@ -123,6 +114,14 @@
 		width: 50%;
 	}
 
+	.playlist-display-wrapper {
+		border: 1px black solid;
+		min-height: 50px;
+		max-height: 300px;
+		overflow-y: auto;
+		overflow-x: hidden;
+	}
+
 	.playlist-input {
 		margin: 20px 0px;
 
@@ -135,45 +134,16 @@
 		}
 
 		.add-btn {
-			margin-left: 20px;
+			margin-right: 10px;
 		}
 	}
 
-	.playlist-display {
-		border: 1px black solid;
-		min-height: 50px;
-		max-height: 300px;
-		overflow: auto;
+	.shuffle-btn a {
+		text-decoration: none;
+	}
 
-		ul {
-			list-style-type: none;
-			padding: 0;
-			margin: 0;
-
-			li {
-				display: flex;
-				padding: 10px;
-				border-bottom: 1px black solid;
-
-				img {
-					height: 80px;
-				}
-
-				.video-info {
-					display: flex;
-					flex-direction: column;
-					justify-content: center;
-					margin-left: 20px;
-
-					.video-channel {
-						color: grey;
-					}
-				}
-			}
-
-			li:nth-last-child(1) {
-				border-bottom: none;
-			}
-		}
+	.disabled {
+		pointer-events: none;
+		cursor: default;
 	}
 </style>

@@ -21,12 +21,14 @@ export const actions = {
 		const resJson = await res.json();
 
 		const playlistData = resJson.items.map((e: any) => {
-			return {
+			const data = {
 				channelTitle: e.snippet.videoOwnerChannelTitle || e.snippet.channelTitle,
 				title: e.snippet.title,
-				videoID: e.snippet.videoId || ytMediaID,
+				videoID: e.snippet?.resourceId?.videoId || ytMediaID,
 				thumbnailUrl: e.snippet.thumbnails.default.url
 			};
+			console.log(data);
+			return data;
 		});
 
 		// console.log(playlistData);

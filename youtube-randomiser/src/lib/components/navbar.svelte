@@ -2,7 +2,7 @@
 </script>
 
 <nav class="navbar">
-	<h1>Youtube Randomiser</h1>
+	<h1><a href="./">Youtube Randomiser</a></h1>
 	<img class="logo" src="https://static.thenounproject.com/png/1940210-200.png" />
 </nav>
 
@@ -15,6 +15,11 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
+
+		h1 a {
+			text-decoration: none;
+			color: black;
+		}
 	}
 
 	.logo {
