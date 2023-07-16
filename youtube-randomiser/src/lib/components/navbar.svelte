@@ -2,23 +2,26 @@
 </script>
 
 <nav class="navbar">
-	<h1><a href="./">Youtube Randomiser</a></h1>
+	<h2><a href="./">Youtube Randomiser</a></h2>
 	<img class="logo" src="https://static.thenounproject.com/png/1940210-200.png" />
 </nav>
 
 <style lang="scss">
 	.navbar {
-		position: fixed;
+		// position: fixed;
 		width: 100%;
-		height: 50px;
+		height: var(--navbar-height);
 
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		padding-top: 20px;
+		box-sizing: border-box;
 
-		h1 a {
+		h2 a {
 			text-decoration: none;
-			color: black;
+			// color: black;
+			// margin: 10px;
 		}
 	}
 

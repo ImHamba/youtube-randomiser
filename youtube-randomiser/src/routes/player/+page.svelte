@@ -1,5 +1,5 @@
 <script lang="ts">
-	import PlaylistDisplay from '$lib/components/playlistDisplay.svelte';
+	import PlaylistDisplay from '$lib/components/playlistDisplay/playlistDisplay.svelte';
 	import Youtube from '$lib/components/youtube.svelte';
 	import { videoIDStore } from '$lib/store';
 	import { createEventDispatcher, onMount } from 'svelte';
@@ -8,10 +8,10 @@
 	let videoIndex: number = 0;
 	let currentVideoID: string = 'xhYaV6iXWU0';
 
-	let player = null;
+	let player: any = null;
 
 	videoIDStore.subscribe((videoIDs) => {
-		videoList = videoIDs;
+		videoList = [...videoIDs];
 	});
 
 	// shuffle list randomly
@@ -46,32 +46,62 @@
 </script>
 
 <div class="wrapper">
-	<div class="playlist-display-wrapper">
-		<PlaylistDisplay {videoList} />
+	<div class="left-wrapper">
+		<div class="controls-container">
+			<button>🔀</button>
+			<button>🔁</button>
+			<button>⬅️</button>
+			<button>⏸️</button>
+			<button>➡️</button>
+		</div>
+		<div class="playlist-display-wrapper">
+			<PlaylistDisplay {videoList} />
+		</div>
 	</div>
 
 	<div class="player-wrapper">
 		<Youtube initialVideoId={currentVideoID} bind:player />
 	</div>
-
-	<button on:click={startNextVideo}> Next! </button>
 </div>
 
 <style lang="scss">
 	.wrapper {
-		height: 100%;
+		height: calc(100% - var(--navbar-height));
 		width: 100%;
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		box-sizing: border-box;
+	}
+
+	.left-wrapper {
+		display: flex;
+		flex-direction: column;
+		height: 60%;
+		width: 30%;
+		margin: 0px 20px;
+	}
+
+	.controls-container {
+		height: 50px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.controls-container button {
+		height: 100%;
+		aspect-ratio: 1;
+		border-radius: 50%;
+		// border: 1px red solid;
+		margin: 5px;
+		font-size: 23px;
 	}
 
 	.playlist-display-wrapper {
-		border: 1px black solid;
-		height: 60%;
-		width: 30%;
-		overflow-y: auto;
-		overflow-x: hidden;
+		min-height: 0;
+		height: 100%;
+		width: 100%;
 	}
 
 	.player-wrapper {

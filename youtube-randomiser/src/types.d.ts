@@ -1,5 +1,4 @@
 interface IVideoData {
-	success: boolean;
 	channelTitle: string;
 	title: string;
 	videoID: string;
@@ -7,6 +6,17 @@ interface IVideoData {
 }
 
 interface IPlaylistData {
-	success: boolean;
-	message: IVideoData[];
+	playlistName: string;
+	playlistThumbnail: string;
+	playlistChannel: string;
+	videos: IVideoData[];
 }
+
+interface IPlaylistDataResponse {
+	success: boolean;
+	message: IPlaylistData;
+}
+
+type IGroupedVideoData = Array<
+	{ isPlayList: true; data: IPlaylistData } | { isPlayList: false; data: IVideoData }
+>;

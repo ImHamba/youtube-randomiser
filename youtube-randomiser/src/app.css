@@ -7,14 +7,14 @@
 
 * {
 	font-family: "Inter", sans-serif;
-
-	/* --bgr-color: #f5f6fa;
+	/* color: white; */
+	--bgr-color: #f5f6fa;
 	
-	--accent1: #F1FFE7;
+	/* --accent1: #F1FFE7;
 	--accent2: #c2ffc4;
 	--accent3: #8cdda3;
 	--accent4: #32A287;
-	--accent5: #ffd700;
+	--accent5: #ffd700; */
 
 	--txt-light: #fcfcfc;
 	--txt-dark: #282121;
@@ -23,12 +23,21 @@
 	--grey-accent: #e8e8e8;
 	--grey-dark: #b2b2b2;
 
-	--left-margin: 10%;
+	/* --left-margin: 10%;
 	--right-margin: calc(3% + 70px);
 	--mobile-left-margin: 10%;
-	--mobile-right-margin: calc(4% + 46px);
+	--mobile-right-margin: calc(4% + 46px); */
 
-	--custom-scrollbar-color: #00000026; */
+	/* --custom-scrollbar-color: #00000026; */
+	color: var(--txt-light);
+
+	--navbar-height: 50px;
+}
+
+button {
+	background: none;
+	border: none;
+	cursor: pointer;
 }
 
 html, body {
@@ -37,13 +46,10 @@ html, body {
 	height: 100%;
 	scroll-behavior: smooth;
 
-	font-size: 16px;
-	scrollbar-gutter: stable;
+	font-size: 16px;	
 }
 
 body {
-	background-color: var(--bgr-color);
-	color: var(--txt-dark);
 
 	margin: 0;
 	padding: 0;
