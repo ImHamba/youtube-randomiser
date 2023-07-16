@@ -1,8 +1,22 @@
 <script lang="ts">
-	import { fade } from 'svelte/transition';
-	import PlaylistWrapper from './playlistWrapper.svelte';
+	import { groupedVideoStore } from '$lib/store';
 	import CollapsableSection from '../collapsableSection.svelte';
+	import PlaylistWrapper from './playlistWrapper.svelte';
 	export let groupedVideoData: IGroupedVideoData;
+
+	const removeVideoGroup = (videoGroup: IVideoGroup) => () => {
+		groupedVideoStore.set(groupedVideoData.filter((e) => e !== videoGroup));
+	};
+
+	const removeVideoFromPlaylist = (videoGroup: IVideoGroup, index: number) => () => {
+		const videoGroupIndex = groupedVideoData.findIndex((e) => e === videoGroup);
+		const thisGroup = groupedVideoData[videoGroupIndex];
+
+		if (thisGroup.isPlayList) {
+			thisGroup.data.videos.splice(index, 1);
+			groupedVideoStore.set(groupedVideoData);
+		}
+	};
 </script>
 
 <PlaylistWrapper>
@@ -20,11 +34,11 @@
 						</div>
 						<div class="list-subtitle">Playlist</div>
 					</div>
-					<button class="delete-btn">X</button>
+					<button class="delete-btn" on:click={removeVideoGroup(videoGroup)}>X</button>
 				</li>
 				<div class="list-wrapper" slot="items">
-					{#each videoGroup.data.videos as video}
-						<li class="list-item" in:fade>
+					{#each videoGroup.data.videos as video, index}
+						<li class="list-item">
 							<div class="thumbnail" style:background-image={`url(${video.thumbnailUrl}`} />
 							<div class="list-info">
 								<div class="list-title">{video.title}</div>
@@ -32,13 +46,15 @@
 									{video.channelTitle}
 								</div>
 							</div>
-							<button class="delete-btn">X</button>
+							<button class="delete-btn" on:click={removeVideoFromPlaylist(videoGroup, index)}>
+								X
+							</button>
 						</li>
 					{/each}
 				</div>
 			</CollapsableSection>
 		{:else}
-			<li in:fade>
+			<li>
 				<div class="thumbnail" style:background-image={`url(${videoGroup.data.thumbnailUrl}`} />
 				<div class="list-info">
 					<div class="list-title">{videoGroup.data.title}</div>
@@ -46,6 +62,7 @@
 						{videoGroup.data.channelTitle}
 					</div>
 				</div>
+				<button class="delete-btn" on:click={removeVideoGroup(videoGroup)}>X</button>
 			</li>
 		{/if}
 	{/each}

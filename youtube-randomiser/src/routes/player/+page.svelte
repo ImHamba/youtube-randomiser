@@ -1,18 +1,15 @@
 <script lang="ts">
 	import PlaylistDisplay from '$lib/components/playlistDisplay/playlistDisplay.svelte';
 	import Youtube from '$lib/components/youtube.svelte';
-	import { videoIDStore } from '$lib/store';
-	import { createEventDispatcher, onMount } from 'svelte';
+	import { groupedVideoStore } from '$lib/store';
+	import { onMount } from 'svelte';
 
 	let videoList: IVideoData[] = [];
+	let videoListInitialised = false;
 	let videoIndex: number = 0;
-	let currentVideoID: string = 'xhYaV6iXWU0';
+	let currentVideoID: string = '';
 
 	let player: any = null;
-
-	videoIDStore.subscribe((videoIDs) => {
-		videoList = [...videoIDs];
-	});
 
 	// shuffle list randomly
 	const shuffleArray = <T>(array: Array<T>) => {
@@ -20,9 +17,42 @@
 		newArr.sort(() => Math.random() - 0.5);
 		return newArr;
 	};
-	videoList = shuffleArray(videoList);
 
-	currentVideoID = videoList[videoIndex]?.videoID || '';
+	const extractFromGroupedVideoData = (someGroupedVideoData: IGroupedVideoData) => {
+		let videoList: IVideoData[];
+		videoList = someGroupedVideoData
+			.map((videoData) => {
+				if (videoData.isPlayList) {
+					return videoData.data.videos;
+				} else {
+					return [videoData.data];
+				}
+			})
+			.reduce((a, e) => {
+				return [...a, ...e];
+			}, []);
+
+		return videoList;
+	};
+
+	let groupedVideoData: IGroupedVideoData = [];
+	groupedVideoStore.subscribe((storeData) => {
+		groupedVideoData = storeData;
+		videoList = extractFromGroupedVideoData(storeData);
+
+		// initialise
+		if (!videoListInitialised) {
+			videoListInitialised = true;
+			videoList = shuffleArray(videoList);
+			currentVideoID = videoList[0]?.videoID;
+
+			if (videoList.length == 0) {
+				window.location.href = './';
+			}
+		}
+	});
+
+	// $: currentVideoID = videoList[videoIndex]?.videoID || '';
 
 	onMount(() => {
 		const endedInterval = setInterval(() => {
@@ -52,6 +82,8 @@
 	const loadVideo = () => {
 		currentVideoID = videoList[videoIndex]?.videoID || '';
 		player.loadVideoById(currentVideoID);
+		player.seekTo(0);
+		player.playVideo();
 	};
 
 	const loadNextVideo = () => {
@@ -65,7 +97,7 @@
 	};
 
 	const shuffleVideos = () => {
-		videoIDStore.set(shuffleArray(videoList));
+		videoList = shuffleArray(videoList);
 		videoIndex = 0;
 		loadVideo();
 	};
@@ -106,7 +138,7 @@
 			<button on:click={toggleLoopVideo} class:inactive={!loopVideo}>🔁</button>
 		</div>
 		<div class="playlist-display-wrapper">
-			<PlaylistDisplay {videoList} />
+			<PlaylistDisplay {videoList} activeVideoIndex={videoIndex} />
 		</div>
 	</div>
 
@@ -134,25 +166,39 @@
 	}
 
 	.controls-container {
-		height: 80px;
+		@import './src/app.scss';
+		@include glass-background;
+
+		min-height: 80px;
+		width: 100%;
+		// overflow: hidden;
 		display: flex;
+		flex-wrap: wrap;
 		justify-content: center;
 		align-items: center;
+		border-radius: 25px 25px 5px 5px;
+		// border: 1px red solid;
+		margin-bottom: 5px;
 	}
 
 	.controls-container button {
-		height: 100%;
+		// min-width: 0;
+		height: 50%;
 		aspect-ratio: 1;
 		border-radius: 50%;
 		// border: 1px red solid;
-		margin: 5px;
 		font-size: 23px;
+		margin: 0px clamp(1px, 5px, 10px);
+		padding: 0px;
 	}
 
 	.playlist-display-wrapper {
 		min-height: 0;
 		height: 100%;
 		width: 100%;
+		border-radius: 5px 5px 25px 25px;
+		// border: 1px red solid;
+		overflow: hidden;
 	}
 
 	.player-wrapper {

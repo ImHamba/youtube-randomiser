@@ -17,6 +17,8 @@ interface IPlaylistDataResponse {
 	message: IPlaylistData;
 }
 
-type IGroupedVideoData = Array<
-	{ isPlayList: true; data: IPlaylistData } | { isPlayList: false; data: IVideoData }
->;
+type IGroupedVideoData = Array<IVideoGroup>;
+
+type IVideoGroup =
+	| { isPlayList: true; data: IPlaylistData }
+	| { isPlayList: false; data: IVideoData };

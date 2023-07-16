@@ -1,24 +1,19 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import type { ActionResult, SubmitFunction } from '@sveltejs/kit';
+	import type { SubmitFunction } from '@sveltejs/kit';
 
-	import { fade, fly } from 'svelte/transition';
-	import { videoIDStore } from '$lib/store';
-	import PlaylistDisplay from '$lib/components/playlistDisplay/playlistDisplay.svelte';
-	import Layout from './+layout.svelte';
 	import GroupedPlaylistDisplay from '$lib/components/playlistDisplay/groupedPlaylistDisplay.svelte';
+	import { groupedVideoStore } from '$lib/store';
 
 	// return from form POST request is accessible through this special form prop
 	export let form: IPlaylistDataResponse;
 
 	let originalIDs: string[] = [];
 
-	let videoList: IVideoData[] = [];
-	videoIDStore.subscribe((videoIDs) => {
-		videoList = videoIDs;
-	});
-
 	let groupedVideoData: IGroupedVideoData = [];
+	groupedVideoStore.subscribe((storeData) => {
+		groupedVideoData = storeData;
+	});
 
 	const handleAddID: SubmitFunction = ({ formElement, formData, cancel, action }) => {
 		const ytMediaID = formData.get('ytMediaID')?.toString();
@@ -62,34 +57,16 @@
 	};
 
 	const processVideoData = (videoData: IVideoData) => {
-		videoIDStore.update((currentData) => {
-			return [videoData, ...currentData];
+		groupedVideoStore.update((currentData) => {
+			return [{ isPlayList: false, data: videoData }, ...currentData];
 		});
-
-		// append video to start of grouped video data
-		groupedVideoData = [
-			{
-				isPlayList: false,
-				data: videoData
-			},
-			...groupedVideoData
-		];
 	};
 
 	const processPlaylistData = (playlistData: IPlaylistData) => {
 		//update video id store with videos from playlist
-		videoIDStore.update((currentData) => {
-			return [...currentData, ...playlistData.videos];
+		groupedVideoStore.update((currentData) => {
+			return [{ isPlayList: true, data: playlistData }, ...currentData];
 		});
-
-		// append playlist to start of grouped video data
-		groupedVideoData = [
-			{
-				isPlayList: true,
-				data: playlistData
-			},
-			...groupedVideoData
-		];
 	};
 
 	const validateVideoId = (ytMediaID: string) => {
@@ -111,7 +88,7 @@
 	};
 
 	const handleClearVideos = () => {
-		videoIDStore.set([]);
+		groupedVideoStore.set([]);
 	};
 
 	let input = '';
@@ -147,8 +124,8 @@
 		</div>
 	</div>
 	<div class="btn-wrapper">
-		<button class="shuffle-btn" class:disabled={videoList.length == 0}>
-			<a href="/player" class:disabled={videoList.length == 0}>Shuffle</a>
+		<button class="shuffle-btn" class:disabled={groupedVideoData.length == 0}>
+			<a href="/player" class:disabled={groupedVideoData.length == 0}>Shuffle</a>
 		</button>
 		<button class="clear-btn" on:click={handleClearVideos}>Clear</button>
 	</div>
@@ -187,6 +164,8 @@
 		// min-height: 50px;
 		// max-height: 300px;
 		padding: 0;
+		border-radius: 25px;
+		overflow: hidden;
 		height: 100%;
 		width: 100%;
 

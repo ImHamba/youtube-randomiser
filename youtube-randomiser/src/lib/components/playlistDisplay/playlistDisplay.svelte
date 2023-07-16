@@ -2,11 +2,12 @@
 	import { fade } from 'svelte/transition';
 	import PlaylistWrapper from './playlistWrapper.svelte';
 	export let videoList: IVideoData[];
+	export let activeVideoIndex = -1;
 </script>
 
-<PlaylistWrapper>
-	{#each videoList as video}
-		<li in:fade>
+<PlaylistWrapper overflowScroll={false}>
+	{#each videoList as video, index}
+		<li class:active={index == activeVideoIndex}>
 			<div class="thumbnail" style:background-image={`url(${video.thumbnailUrl}`} />
 			<div class="video-info">
 				<div class="video-title">{video.title}</div>
@@ -41,5 +42,9 @@
 		display: flex;
 		padding: 10px;
 		align-items: center;
+	}
+
+	.active {
+		background-color: #ffffff1d;
 	}
 </style>

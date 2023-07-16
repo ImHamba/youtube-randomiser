@@ -1,7 +1,8 @@
 <script lang="ts">
+	export let overflowScroll = true;
 </script>
 
-<div class="playlist-display">
+<div class="playlist-display" style:overflow-y={overflowScroll ? 'scroll' : 'auto'}>
 	<ul>
 		<slot />
 	</ul>
@@ -12,17 +13,16 @@
 		box-sizing: border-box;
 	}
 	.playlist-display {
+		@import './src/app.scss';
+		@include glass-background;
+
 		height: 100%;
 		width: 100%;
 
-		overflow-y: scroll;
 		overflow-x: hidden;
 
 		// border: 1px black solid;
-		border-radius: 25px;
-		background-color: #ffffff1a;
-		box-shadow: 0px 2px 10px #70707021;
-		backdrop-filter: blur(100px);
+		// border-radius: 25px;
 
 		ul {
 			list-style-type: none;
@@ -39,7 +39,7 @@
 		// background: #dddddd;
 		background: none;
 		border-radius: 10px;
-		margin: 23px 0px;
+		// margin: 23px 0px;
 	}
 
 	.playlist-display::-webkit-scrollbar-thumb {
