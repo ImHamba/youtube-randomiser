@@ -24,52 +24,52 @@
 
 		background: radial-gradient(circle 300px at 30% 30%, #18ea8c32, transparent),
 			radial-gradient(
-				circle 300px at percentage(random(100) / 100) percentage(random(100) / 100),
+				circle 300px at percentage(calc(random(100) / 100)) percentage(calc(random(100) / 100)),
 				rgb(random(255), random(255), random(255), 0.5),
 				transparent
 			),
 			radial-gradient(
-				circle 300px at percentage(random(100) / 100) percentage(random(100) / 100),
+				circle 300px at percentage(calc(random(100) / 100)) percentage(calc(random(100) / 100)),
 				rgb(random(255), random(255), random(255), 0.5),
 				transparent
 			),
 			radial-gradient(
-				circle 300px at percentage(random(100) / 100) percentage(random(100) / 100),
+				circle 300px at percentage(calc(random(100) / 100)) percentage(calc(random(100) / 100)),
 				rgb(random(255), random(255), random(255), 0.5),
 				transparent
 			),
 			radial-gradient(
-				circle 300px at percentage(random(100) / 100) percentage(random(100) / 100),
+				circle 300px at percentage(calc(random(100) / 100)) percentage(calc(random(100) / 100)),
 				rgb(random(255), random(255), random(255), 0.5),
 				transparent
 			),
 			radial-gradient(
-				circle 300px at percentage(random(100) / 100) percentage(random(100) / 100),
+				circle 300px at percentage(calc(random(100) / 100)) percentage(calc(random(100) / 100)),
 				rgb(random(255), random(255), random(255), 0.5),
 				transparent
 			),
 			radial-gradient(
-				circle 300px at percentage(random(100) / 100) percentage(random(100) / 100),
+				circle 300px at percentage(calc(random(100) / 100)) percentage(calc(random(100) / 100)),
 				rgb(random(255), random(255), random(255), 0.5),
 				transparent
 			),
 			radial-gradient(
-				circle 300px at percentage(random(100) / 100) percentage(random(100) / 100),
+				circle 300px at percentage(calc(random(100) / 100)) percentage(calc(random(100) / 100)),
 				rgb(random(255), random(255), random(255), 0.5),
 				transparent
 			),
 			radial-gradient(
-				circle 300px at percentage(random(100) / 100) percentage(random(100) / 100),
+				circle 300px at percentage(calc(random(100) / 100)) percentage(calc(random(100) / 100)),
 				rgb(random(255), random(255), random(255), 0.5),
 				transparent
 			),
 			radial-gradient(
-				circle 300px at percentage(random(100) / 100) percentage(random(100) / 100),
+				circle 300px at percentage(calc(random(100) / 100)) percentage(calc(random(100) / 100)),
 				rgb(random(255), random(255), random(255), 0.5),
 				transparent
 			),
 			radial-gradient(
-				circle 300px at percentage(random(100) / 100) percentage(random(100) / 100),
+				circle 300px at percentage(calc(random(100) / 100)) percentage(calc(random(100) / 100)),
 				rgb(random(255), random(255), random(255), 0.5),
 				transparent
 			);
