@@ -1,5 +1,5 @@
 <script lang="ts">
-	import PlaylistDisplay from '$lib/components/playlistDisplay/playlistDisplay.svelte';
+	import PlaylistDisplay from '$lib/components/playlistDisplay/mixDisplay.svelte';
 	import Youtube from '$lib/components/youtube.svelte';
 	import { groupedVideoStore } from '$lib/store';
 	import { onMount } from 'svelte';
@@ -53,6 +53,13 @@
 	});
 
 	// $: currentVideoID = videoList[videoIndex]?.videoID || '';
+	let swapToIndex: number = -1;
+	$: {
+		if (swapToIndex >= 0) {
+			videoIndex = swapToIndex;
+			loadVideo();
+		}
+	}
 
 	onMount(() => {
 		const endedInterval = setInterval(() => {
@@ -138,7 +145,7 @@
 			<button on:click={toggleLoopVideo} class:inactive={!loopVideo}>🔁</button>
 		</div>
 		<div class="playlist-display-wrapper">
-			<PlaylistDisplay {videoList} activeVideoIndex={videoIndex} />
+			<PlaylistDisplay {videoList} bind:activeVideoIndex={videoIndex} bind:swapToIndex />
 		</div>
 	</div>
 
