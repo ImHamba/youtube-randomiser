@@ -15,6 +15,8 @@
 		groupedVideoData = storeData;
 	});
 
+	let awaitingResponse = false;
+
 	const handleAddID: SubmitFunction = ({ formElement, formData, cancel, action }) => {
 		const ytMediaID = formData.get('ytMediaID')?.toString();
 
@@ -31,9 +33,11 @@
 			return;
 		}
 
+		awaitingResponse = true;
+
 		// function to execute on returned response
 		return async ({ result }) => {
-			console.log(result);
+			awaitingResponse = false;
 			if (result.type === 'success' && result.data != null) {
 				if (result.data.success === true) {
 					// valid playlist or video id was found, update the video list
@@ -104,27 +108,33 @@
 </script>
 
 <div class="wrapper">
-	<h3>Playlist</h3>
+	<h3>Mix Creator</h3>
 	<div class="video-list">
 		<div class="playlist-input">
 			<form use:enhance={handleAddID} method="POST" action="?/getVideo">
 				<!-- Buttons swap in and out depending on whether user input is invalid, video ID or playlist ID -->
-				<button class="add-btn active" formaction="?/getPlaylist" class:hidden={!inputIsPlaylist}>
-					<i class="fa-solid fa-plus" />
-				</button>
+				{#if !awaitingResponse}
+					<button class="add-btn active" formaction="?/getPlaylist" class:hidden={!inputIsPlaylist}>
+						<i class="fa-solid fa-plus" />
+					</button>
 
-				<button class="add-btn active" formaction="?/getVideo" class:hidden={!inputIsVideo}>
-					<i class="fa-solid fa-plus" />
-				</button>
+					<button class="add-btn active" formaction="?/getVideo" class:hidden={!inputIsVideo}>
+						<i class="fa-solid fa-plus" />
+					</button>
 
-				<button class="add-btn disabled" class:hidden={!inputInvalid}>
-					<i class="fa-solid fa-plus" />
-				</button>
+					<button class="add-btn disabled" class:hidden={!inputInvalid}>
+						<i class="fa-solid fa-plus" />
+					</button>
+				{:else}
+					<button class="add-btn waiting-spinner">
+						<i class="fa-solid fa-circle-notch" />
+					</button>
+				{/if}
 
 				<input
 					name="ytMediaID"
 					type="text"
-					placeholder="Enter a playlist or video ID or URL"
+					placeholder="Enter a Youtube playlist or video ID"
 					bind:value={input}
 				/>
 			</form>
@@ -162,18 +172,19 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		padding: 3% 0px 5%;
+		padding: 7% 0px 5%;
 		margin: 0;
 	}
 
 	h3 {
-		margin-right: 20px;
+		margin: 0px;
+		font-family: 'Montserrat', sans-serif;
 	}
 
 	.video-list {
 		display: flex;
 		flex-direction: column;
-		padding: 20px;
+		padding: 0px 20px 20px;
 		width: 50%;
 		height: 100%;
 
@@ -228,8 +239,11 @@
 		}
 
 		.add-btn {
+			text-align: center;
+			padding: 0px;
+			width: 30px;
 			margin-right: 10px;
-			aspect-ratio: 1;
+			// aspect-ratio: 1;
 			transition: all 0.1s ease;
 
 			i {
@@ -243,6 +257,24 @@
 
 		.add-btn:hover {
 			opacity: 0.9;
+		}
+
+		.waiting-spinner {
+			opacity: 0.6;
+			animation: spin 2s linear infinite;
+
+			i {
+				font-size: 25px;
+			}
+		}
+
+		@keyframes spin {
+			from {
+				transform: rotate(0deg);
+			}
+			to {
+				transform: rotate(360deg);
+			}
 		}
 	}
 

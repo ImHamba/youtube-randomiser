@@ -3,7 +3,7 @@
 
 <nav class="navbar">
 	<h2><a href="./">Youtube Randomiser</a></h2>
-	<img class="logo" src="https://static.thenounproject.com/png/1940210-200.png" />
+	<i class="fa-solid fa-shuffle" />
 </nav>
 
 <style lang="scss">
@@ -15,13 +15,23 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		padding-top: 20px;
+		// padding-top: 20px;
 		box-sizing: border-box;
 
-		h2 a {
-			text-decoration: none;
-			// color: black;
-			// margin: 10px;
+		// border: 1px red solid;
+
+		h2 {
+			// margin: 10px 0px;
+
+			a {
+				font-family: 'Montserrat', sans-serif;
+				text-decoration: none;
+			}
+		}
+
+		i {
+			margin-left: 10px;
+			font-size: 2em;
 		}
 	}
 

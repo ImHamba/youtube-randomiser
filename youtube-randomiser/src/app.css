@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;600;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;600;800&display=swap');
 
 @font-face {
 	font-family: "GlitchGoblin";
@@ -31,7 +32,7 @@
 	/* --custom-scrollbar-color: #00000026; */
 	color: var(--txt-light);
 
-	--navbar-height: 50px;
+	--navbar-height: 70px;
 }
 
 button {
