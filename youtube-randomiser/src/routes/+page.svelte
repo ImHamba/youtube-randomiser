@@ -181,6 +181,8 @@
 	}
 
 	.playlist-display-wrapper {
+		@import './src/app.scss';
+		@include glass-background;
 		// min-height: 50px;
 		// max-height: 300px;
 		padding: 0;

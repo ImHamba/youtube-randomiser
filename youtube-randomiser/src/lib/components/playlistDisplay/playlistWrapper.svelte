@@ -14,9 +14,6 @@
 	}
 
 	.playlist-display {
-		@import './src/app.scss';
-		@include glass-background;
-
 		height: 100%;
 		width: 100%;
 
@@ -42,8 +39,8 @@
 		// background: #dddddd;
 		background: none;
 		border-radius: 10px;
-		margin-top: var(--margin-top);
-		margin-bottom: var(--margin-btm);
+		margin-top: var(--scrollbar-margin-top);
+		margin-bottom: var(--scrollbar-margin-btm);
 	}
 
 	.playlist-display::-webkit-scrollbar-thumb {

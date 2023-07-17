@@ -91,6 +91,8 @@
 		}
 	}
 
+	let searchTerm = '';
+
 	onMount(() => {
 		const endedInterval = setInterval(() => {
 			// if the player exists (i.e. has loaded), check if the state is 0 for video has ended.
@@ -189,13 +191,22 @@
 				<i class="fa-solid fa-repeat" />
 			</button>
 		</div>
-		<div class="playlist-display-wrapper">
-			<MixDisplay
-				{videoList}
-				bind:activeVideoIndex={videoIndex}
-				bind:swapToIndex
-				bind:this={mixDisplay}
-			/>
+		<div class="btm-panel">
+			<div class="search-bar-wrapper">
+				<div class="search-bar">
+					<i class="fa-solid fa-magnifying-glass" />
+					<input bind:value={searchTerm} />
+				</div>
+			</div>
+			<div class="playlist-display-wrapper">
+				<MixDisplay
+					{videoList}
+					bind:activeVideoIndex={videoIndex}
+					bind:swapToIndex
+					bind:this={mixDisplay}
+					bind:searchTerm
+				/>
+			</div>
 		</div>
 	</div>
 
@@ -236,9 +247,7 @@
 		border-radius: 25px 25px 5px 5px;
 		// border: 1px red solid;
 		margin-bottom: 5px;
-	}
 
-	.controls-container {
 		button {
 			// min-width: 0;
 			height: 50%;
@@ -258,11 +267,55 @@
 		}
 	}
 
+	.btm-panel {
+		@import './src/app.scss';
+		@include glass-background;
+		overflow: hidden;
+		box-sizing: border-box;
+		display: flex;
+		flex-direction: column;
+
+		border-radius: 5px 5px 25px 25px;
+		height: 100%;
+	}
+
+	.search-bar-wrapper {
+		padding: 15px;
+		.search-bar {
+			border-radius: 100px;
+			width: 100%;
+			// border: 1px red solid;
+			padding: 5px 15px;
+			display: flex;
+			box-sizing: border-box;
+			align-items: center;
+			background: #00000010;
+
+			i {
+				margin-right: 5px;
+				margin-top: 1px;
+			}
+
+			input {
+				background: none;
+				border: none;
+				padding: 5px;
+				outline: none;
+				width: 100%;
+				font-size: 0.9em;
+			}
+		}
+
+		.search-bar:focus-within {
+			background: #00000033;
+		}
+	}
+
 	.playlist-display-wrapper {
 		min-height: 0;
 		height: 100%;
 		width: 100%;
-		border-radius: 5px 5px 25px 25px;
+
 		// border: 1px red solid;
 		overflow: hidden;
 	}
@@ -280,7 +333,7 @@
 	}
 
 	.hidden {
-		display: none !important;
+		display: none;
 	}
 
 	.inactive {

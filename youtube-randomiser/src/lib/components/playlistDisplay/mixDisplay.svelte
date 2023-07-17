@@ -13,15 +13,25 @@
 			liElement.scrollIntoView(true);
 		}, 500);
 	};
+
+	export let searchTerm = '';
+	const containsSubstring = (fullString: string, substr: string) => {
+		return fullString.toLowerCase().includes(substr.toLowerCase());
+	};
 </script>
 
-<PlaylistWrapper overflowScroll={false} --margin-btm="18px">
+<PlaylistWrapper overflowScroll={false} --scrollbar-margin-btm="18px">
 	<div id="li-wrapper">
 		{#each videoList as video, index}
 			<li
 				class:active={index == activeVideoIndex}
+				class:hidden={!(
+					containsSubstring(video.title, searchTerm) ||
+					containsSubstring(video.channelTitle, searchTerm)
+				)}
 				on:click={() => {
 					swapToIndex = index;
+					searchTerm = '';
 				}}
 			>
 				<div class="thumbnail" style:background-image={`url(${video.thumbnailUrl}`} />
@@ -69,5 +79,9 @@
 	.active,
 	.active:hover {
 		background-color: #ffffff1d;
+	}
+
+	.hidden {
+		display: none;
 	}
 </style>

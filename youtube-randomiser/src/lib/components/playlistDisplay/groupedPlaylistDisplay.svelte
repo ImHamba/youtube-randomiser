@@ -19,7 +19,7 @@
 	};
 </script>
 
-<PlaylistWrapper --margin-btm="15px" --margin-top="15px">
+<PlaylistWrapper --scrollbar-margin-btm="15px" --scrollbar-margin-top="15px">
 	{#each groupedVideoData as videoGroup}
 		{#if videoGroup.isPlayList}
 			<CollapsableSection expanded={false}>
