@@ -11,8 +11,10 @@ export const actions = {
 		let firstPlJson = await fetchPlaylistItems(playlistID);
 		let allSnippets = firstPlJson.items;
 
-		const numAddlRequests =
-			Math.ceil(firstPlJson.pageInfo.totalResults / firstPlJson.pageInfo.resultsPerPage) - 1;
+		const numAddlRequests = Math.max(
+			3,
+			Math.ceil(firstPlJson.pageInfo.totalResults / firstPlJson.pageInfo.resultsPerPage) - 1
+		);
 
 		if (numAddlRequests > 0) {
 			let nextPageToken = firstPlJson.nextPageToken;
@@ -24,16 +26,34 @@ export const actions = {
 			}
 		}
 
-		const videoData: IVideoData[] = allSnippets.map((e: any) => {
-			const data = {
-				channelTitle: e.snippet.videoOwnerChannelTitle || e.snippet.channelTitle,
-				title: e.snippet.title,
-				videoID: e.snippet.resourceId.videoId,
-				thumbnailUrl: e.snippet.thumbnails.default.url
-			};
-			// console.log(data);
-			return data;
-		});
+		const videoData: IVideoData[] = allSnippets
+			.map((e: any) => {
+				let data;
+				try {
+					// check that resource has all required information and isnt private or removed
+					if (
+						// e.snippet.title != 'Private video' &&
+						e.snippet?.videoOwnerChannelTitle &&
+						e.snippet?.title &&
+						e.snippet?.resourceId.videoId &&
+						e.snippet?.thumbnails.default.url
+					) {
+						data = {
+							channelTitle: e.snippet.videoOwnerChannelTitle,
+							title: e.snippet.title,
+							videoID: e.snippet.resourceId.videoId,
+							thumbnailUrl: e.snippet.thumbnails.default.url
+						};
+					} else {
+						console.log('Private video:', e.snippet);
+					}
+				} catch (error) {
+					console.log('Playlist fetch error:', data);
+				}
+
+				return data;
+			})
+			.filter((e: any) => e !== undefined);
 
 		const plDetails = await fetchPlaylistDetails(playlistID);
 		let playlistData: IPlaylistData = {
@@ -59,6 +79,10 @@ export const actions = {
 		}
 
 		const resJson = await res.json();
+
+		if (resJson.items.length == 0) {
+			return { success: false, message: null };
+		}
 
 		const videoData: IVideoData = {
 			channelTitle: resJson.items[0].snippet.channelTitle,

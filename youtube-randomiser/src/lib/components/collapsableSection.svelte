@@ -2,8 +2,6 @@
 	import { fly } from 'svelte/transition';
 
 	export let expanded: boolean;
-
-	$: console.log(expanded);
 </script>
 
 <div class="header">
