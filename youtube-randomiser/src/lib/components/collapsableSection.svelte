@@ -1,5 +1,9 @@
 <script lang="ts">
+	import { fly } from 'svelte/transition';
+
 	export let expanded: boolean;
+
+	$: console.log(expanded);
 </script>
 
 <div class="header">
@@ -7,28 +11,35 @@
 	<button
 		on:click={() => {
 			expanded = !expanded;
-		}}>collapse</button
+		}}
 	>
+		<i class="fa-solid fa-angle-down" class:rotated={!expanded} />
+	</button>
 </div>
-
-<div class:hidden={!expanded}>
-	<slot name="items" />
-</div>
+{#if expanded}
+	<div transition:fly={{ y: -20 }}>
+		<slot name="items" />
+	</div>
+{/if}
 
 <style lang="scss">
 	.header {
 		display: flex;
-		justify-content: space-between;
+		// justify-content: space-between;
 		align-items: center;
 		padding-right: 10px;
 	}
 
-	.hidden {
-		display: none;
-	}
-
 	button {
 		height: 50%;
-		width: 100px;
+		// width: 100px;
+	}
+
+	i {
+		transition: transform 500ms ease;
+		font-size: 1.7em;
+	}
+	.rotated {
+		transform: rotateX(180deg) translateY(3px);
 	}
 </style>

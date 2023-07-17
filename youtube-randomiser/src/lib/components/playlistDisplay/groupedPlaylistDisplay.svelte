@@ -22,7 +22,7 @@
 <PlaylistWrapper --margin-btm="15px" --margin-top="15px">
 	{#each groupedVideoData as videoGroup}
 		{#if videoGroup.isPlayList}
-			<CollapsableSection expanded={true}>
+			<CollapsableSection expanded={false}>
 				<li class="list-header" slot="header">
 					<div
 						class="thumbnail"
@@ -32,9 +32,11 @@
 						<div class="list-title">
 							{videoGroup.data.playlistName}
 						</div>
-						<div class="list-subtitle">Playlist</div>
+						<div class="list-subtitle">Playlist • {videoGroup.data.videos.length} videos</div>
 					</div>
-					<button class="delete-btn" on:click={removeVideoGroup(videoGroup)}>X</button>
+					<button class="delete-btn" on:click={removeVideoGroup(videoGroup)}>
+						<i class="fa-solid fa-xmark" />
+					</button>
 				</li>
 				<div class="list-wrapper" slot="items">
 					{#each videoGroup.data.videos as video, index}
@@ -47,7 +49,7 @@
 								</div>
 							</div>
 							<button class="delete-btn" on:click={removeVideoFromPlaylist(videoGroup, index)}>
-								X
+								<i class="fa-solid fa-xmark" />
 							</button>
 						</li>
 					{/each}
@@ -62,7 +64,9 @@
 						{videoGroup.data.channelTitle}
 					</div>
 				</div>
-				<button class="delete-btn" on:click={removeVideoGroup(videoGroup)}>X</button>
+				<button class="delete-btn" on:click={removeVideoGroup(videoGroup)}>
+					<i class="fa-solid fa-xmark" />
+				</button>
 			</li>
 		{/if}
 	{/each}
@@ -110,7 +114,7 @@
 		height: fit-content;
 	}
 
-	.collapsed {
-		max-height: 0;
+	i {
+		font-size: 1.7em;
 	}
 </style>
