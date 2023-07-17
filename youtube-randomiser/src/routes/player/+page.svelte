@@ -190,6 +190,9 @@
 			<button on:click={toggleLoopVideo} class:inactive={!loopVideo}>
 				<i class="fa-solid fa-repeat" />
 			</button>
+			<button>
+				<a href="./"><i class="fa-solid fa-plus" /></a>
+			</button>
 		</div>
 		<div class="btm-panel">
 			<div class="search-bar-wrapper">
@@ -257,9 +260,6 @@
 			font-size: 2em;
 			margin: 0px clamp(1px, 5px, 10px);
 			padding: 0px;
-
-			// display: flex;
-			// align-items: center;
 		}
 
 		.pause-btn {
