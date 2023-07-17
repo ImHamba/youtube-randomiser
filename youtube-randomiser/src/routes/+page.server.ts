@@ -11,10 +11,8 @@ export const actions = {
 		let firstPlJson = await fetchPlaylistItems(playlistID);
 		let allSnippets = firstPlJson.items;
 
-		const numAddlRequests = Math.max(
-			3,
-			Math.ceil(firstPlJson.pageInfo.totalResults / firstPlJson.pageInfo.resultsPerPage) - 1
-		);
+		const numAddlRequests =
+			Math.ceil(firstPlJson.pageInfo.totalResults / firstPlJson.pageInfo.resultsPerPage) - 1;
 
 		if (numAddlRequests > 0) {
 			let nextPageToken = firstPlJson.nextPageToken;
