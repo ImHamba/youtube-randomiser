@@ -26,7 +26,8 @@
 		if (ytMediaID == null || originalIDs.includes(ytMediaID) || inputInvalid) {
 			console.log('request cancelled');
 			cancel();
-			formElement.reset();
+			// formElement.reset();
+			input = ''; // trigger input validation reactive value
 			return;
 		}
 
@@ -45,7 +46,8 @@
 						processPlaylistData(data);
 					}
 
-					formElement.reset();
+					// formElement.reset();
+					input = ''; // trigger input validation reactive value
 					originalIDs.push(ytMediaID);
 				} else {
 					// playlist or video id was invalid, prompt user to correct their input
@@ -98,6 +100,7 @@
 	$: inputIsPlaylist = validatePlaylistId(input);
 	$: inputIsVideo = validateVideoId(input);
 	$: inputInvalid = !(inputIsPlaylist || inputIsVideo);
+	$: console.log(input, inputInvalid, inputIsPlaylist, inputIsVideo);
 </script>
 
 <div class="wrapper">
@@ -105,11 +108,18 @@
 	<div class="video-list">
 		<div class="playlist-input">
 			<form use:enhance={handleAddID} method="POST" action="?/getVideo">
-				<button class="add-btn" formaction="?/getPlaylist" class:hidden={!inputIsPlaylist}>
-					playlist
+				<!-- Buttons swap in and out depending on whether user input is invalid, video ID or playlist ID -->
+				<button class="add-btn active" formaction="?/getPlaylist" class:hidden={!inputIsPlaylist}>
+					<i class="fa-solid fa-plus" />
 				</button>
-				<button class="add-btn" formaction="?/getVideo" class:hidden={!inputIsVideo}>video</button>
-				<button class="add-btn" class:hidden={!inputInvalid}>invalid</button>
+
+				<button class="add-btn active" formaction="?/getVideo" class:hidden={!inputIsVideo}>
+					<i class="fa-solid fa-plus" />
+				</button>
+
+				<button class="add-btn disabled" class:hidden={!inputInvalid}>
+					<i class="fa-solid fa-plus" />
+				</button>
 
 				<input
 					name="ytMediaID"
@@ -124,10 +134,20 @@
 		</div>
 	</div>
 	<div class="btn-wrapper">
-		<button class="shuffle-btn" class:disabled={groupedVideoData.length == 0}>
-			<a href="/player" class:disabled={groupedVideoData.length == 0}>Shuffle</a>
+		<button class="shuffle-btn bottom-btn" class:bottom-btn-disabled={groupedVideoData.length == 0}>
+			<a href="/player">
+				<i class="fa-solid fa-shuffle" />
+				Shuffle
+			</a>
 		</button>
-		<button class="clear-btn" on:click={handleClearVideos}>Clear</button>
+		<button
+			class="clear-btn bottom-btn"
+			on:click={handleClearVideos}
+			class:bottom-btn-disabled={groupedVideoData.length == 0}
+		>
+			<i class="fa-solid fa-rotate-right" />
+			Clear
+		</button>
 	</div>
 </div>
 
@@ -173,28 +193,88 @@
 	}
 
 	.playlist-input {
+		// height: 50px;
 		margin: 20px 0px;
 
 		form {
 			display: flex;
+			// height: 100%;
+			align-items: center;
 		}
 
 		input {
+			@import './src/app.scss';
+			@include glass-background;
+
+			border: none;
+			border-radius: 50px;
+			padding-left: 15px;
 			width: 100%;
+			height: 40px;
+			font-size: 0.9em;
+			// color: var(--txt-light);
+			outline: none;
+		}
+
+		input:-webkit-autofill,
+		input:-webkit-autofill:focus {
+			transition: background-color 600000s 0s, color 600000s 0s;
+		}
+
+		input::placeholder {
+			color: var(--grey-dark);
 		}
 
 		.add-btn {
 			margin-right: 10px;
+			aspect-ratio: 1;
+			transition: all 0.1s ease;
+
+			i {
+				font-size: 30px;
+			}
+		}
+
+		.active {
+			opacity: 0.6;
+		}
+
+		.add-btn:hover {
+			opacity: 0.9;
 		}
 	}
 
-	.shuffle-btn a {
-		text-decoration: none;
+	.btn-wrapper {
+		display: flex;
+
+		.shuffle-btn a {
+			text-decoration: none;
+			display: flex;
+			align-items: center;
+		}
+
+		.bottom-btn {
+			margin: 0px 10px;
+			font-size: 1.2em;
+			display: flex;
+			align-items: center;
+			i {
+				font-size: 1.3em;
+				margin-right: 5px;
+			}
+		}
+
+		.bottom-btn-disabled {
+			pointer-events: none;
+			cursor: default;
+			opacity: 0.3;
+		}
 	}
 
 	.disabled {
 		pointer-events: none;
 		cursor: default;
+		opacity: 0.12;
 	}
 
 	.hidden {

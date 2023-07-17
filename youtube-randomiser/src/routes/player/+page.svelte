@@ -1,5 +1,5 @@
 <script lang="ts">
-	import PlaylistDisplay from '$lib/components/playlistDisplay/mixDisplay.svelte';
+	import MixDisplay from '$lib/components/playlistDisplay/mixDisplay.svelte';
 	import Youtube from '$lib/components/youtube.svelte';
 	import { groupedVideoStore } from '$lib/store';
 	import { onMount } from 'svelte';
@@ -53,11 +53,41 @@
 	});
 
 	// $: currentVideoID = videoList[videoIndex]?.videoID || '';
+
+	const arrayMove = <T>(arr: Array<T>, fromIndex: number, toIndex: number) => {
+		let newArr: Array<T> = [];
+		if (fromIndex < toIndex) {
+			newArr = newArr.concat(
+				arr.slice(0, fromIndex),
+				arr.slice(fromIndex + 1, toIndex),
+				[arr[fromIndex]],
+				arr.slice(toIndex)
+			);
+		} else {
+			newArr = newArr.concat(
+				arr.slice(0, toIndex),
+				[arr[fromIndex]],
+				arr.slice(toIndex, fromIndex),
+				arr.slice(fromIndex + 1)
+			);
+		}
+		return newArr;
+	};
+
 	let swapToIndex: number = -1;
+	let mixDisplay: MixDisplay;
 	$: {
-		if (swapToIndex >= 0) {
-			videoIndex = swapToIndex;
+		// bring the swapped to video to one after the current video and change to it
+		if (swapToIndex >= 0 && swapToIndex != videoIndex) {
+			videoList = arrayMove(videoList, swapToIndex, videoIndex + 1);
+			videoList = videoList;
+			if (swapToIndex > videoIndex) {
+				videoIndex += 1;
+			}
 			loadVideo();
+			mixDisplay.scrollToListIndex(videoIndex);
+
+			swapToIndex = -1;
 		}
 	}
 
@@ -96,17 +126,20 @@
 	const loadNextVideo = () => {
 		videoIndex = Math.min(videoList.length - 1, videoIndex + 1);
 		loadVideo();
+		mixDisplay.scrollToListIndex(videoIndex);
 	};
 
 	const loadPreviousVideo = () => {
 		videoIndex = Math.max(0, videoIndex - 1);
 		loadVideo();
+		mixDisplay.scrollToListIndex(videoIndex);
 	};
 
 	const shuffleVideos = () => {
 		videoList = shuffleArray(videoList);
 		videoIndex = 0;
 		loadVideo();
+		mixDisplay.scrollToListIndex(videoIndex);
 	};
 
 	let videoPaused = false;
@@ -137,15 +170,32 @@
 <div class="wrapper">
 	<div class="left-wrapper">
 		<div class="controls-container">
-			<button on:click={loadPreviousVideo}>⬅️</button>
-			<button on:click={unpauseVideo} class:hidden={!videoPaused}>▶️</button>
-			<button on:click={pauseVideo} class:hidden={videoPaused}>⏸️</button>
-			<button on:click={loadNextVideo}>➡️</button>
-			<button on:click={shuffleVideos}>🔀</button>
-			<button on:click={toggleLoopVideo} class:inactive={!loopVideo}>🔁</button>
+			<button on:click={loadPreviousVideo}>
+				<i class="fa-solid fa-backward-step" />
+			</button>
+			<button on:click={unpauseVideo} class:hidden={!videoPaused}>
+				<i class="fa-solid fa-play" />
+			</button>
+			<button class="pause-btn" on:click={pauseVideo} class:hidden={videoPaused}>
+				<i class="fa-solid fa-pause" />
+			</button>
+			<button on:click={loadNextVideo}>
+				<i class="fa-solid fa-forward-step" />
+			</button>
+			<button on:click={shuffleVideos}>
+				<i class="fa-solid fa-shuffle" />
+			</button>
+			<button on:click={toggleLoopVideo} class:inactive={!loopVideo}>
+				<i class="fa-solid fa-repeat" />
+			</button>
 		</div>
 		<div class="playlist-display-wrapper">
-			<PlaylistDisplay {videoList} bind:activeVideoIndex={videoIndex} bind:swapToIndex />
+			<MixDisplay
+				{videoList}
+				bind:activeVideoIndex={videoIndex}
+				bind:swapToIndex
+				bind:this={mixDisplay}
+			/>
 		</div>
 	</div>
 
@@ -188,15 +238,24 @@
 		margin-bottom: 5px;
 	}
 
-	.controls-container button {
-		// min-width: 0;
-		height: 50%;
-		aspect-ratio: 1;
-		border-radius: 50%;
-		// border: 1px red solid;
-		font-size: 23px;
-		margin: 0px clamp(1px, 5px, 10px);
-		padding: 0px;
+	.controls-container {
+		button {
+			// min-width: 0;
+			height: 50%;
+			aspect-ratio: 1;
+			border-radius: 50%;
+			// border: 1px red solid;
+			font-size: 2em;
+			margin: 0px clamp(1px, 5px, 10px);
+			padding: 0px;
+
+			// display: flex;
+			// align-items: center;
+		}
+
+		.pause-btn {
+			// font-size: 2.1em;
+		}
 	}
 
 	.playlist-display-wrapper {
@@ -221,7 +280,7 @@
 	}
 
 	.hidden {
-		display: none;
+		display: none !important;
 	}
 
 	.inactive {

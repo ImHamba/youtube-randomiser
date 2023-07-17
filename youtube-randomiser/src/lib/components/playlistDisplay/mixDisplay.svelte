@@ -3,25 +3,37 @@
 	export let videoList: IVideoData[];
 	export let activeVideoIndex = -1;
 	export let swapToIndex;
+
+	export const scrollToListIndex = (scrollToIndex: number) => {
+		setTimeout(() => {
+			const liElement = document
+				.getElementById('li-wrapper')
+				?.children.item(scrollToIndex) as HTMLElement;
+			liElement.scrollIntoView(true);
+			liElement.scrollIntoView(true);
+		}, 500);
+	};
 </script>
 
-<PlaylistWrapper overflowScroll={false}>
-	{#each videoList as video, index}
-		<li
-			class:active={index == activeVideoIndex}
-			on:click={() => {
-				swapToIndex = index;
-			}}
-		>
-			<div class="thumbnail" style:background-image={`url(${video.thumbnailUrl}`} />
-			<div class="video-info">
-				<div class="video-title">{video.title}</div>
-				<div class="video-channel">
-					{video.channelTitle}
+<PlaylistWrapper overflowScroll={false} --margin-btm="18px">
+	<div id="li-wrapper">
+		{#each videoList as video, index}
+			<li
+				class:active={index == activeVideoIndex}
+				on:click={() => {
+					swapToIndex = index;
+				}}
+			>
+				<div class="thumbnail" style:background-image={`url(${video.thumbnailUrl}`} />
+				<div class="video-info">
+					<div class="video-title">{video.title}</div>
+					<div class="video-channel">
+						{video.channelTitle}
+					</div>
 				</div>
-			</div>
-		</li>
-	{/each}
+			</li>
+		{/each}
+	</div>
 </PlaylistWrapper>
 
 <style lang="scss">
@@ -50,7 +62,12 @@
 		// cursor: pointer;
 	}
 
-	.active {
+	li:hover {
+		background-color: #ffffff10;
+	}
+
+	.active,
+	.active:hover {
 		background-color: #ffffff1d;
 	}
 </style>
