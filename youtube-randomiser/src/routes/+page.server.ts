@@ -8,35 +8,36 @@ export const actions = {
 			return { success: false, message: null };
 		}
 
-		let res: Response = await fetchPlaylistItems(playlistID);
+		let firstPlJson = await fetchPlaylistItems(playlistID);
+		let allSnippets = firstPlJson.items;
 
-		if (res.status != 200) {
-			return { success: false, message: null };
+		const numAddlRequests =
+			Math.ceil(firstPlJson.pageInfo.totalResults / firstPlJson.pageInfo.resultsPerPage) - 1;
+
+		if (numAddlRequests > 0) {
+			let nextPageToken = firstPlJson.nextPageToken;
+
+			for (let i = 0; i < numAddlRequests; i++) {
+				let nextPageJson = await fetchPlaylistItems(playlistID, nextPageToken);
+				allSnippets = [...allSnippets, ...nextPageJson.items];
+				nextPageToken = nextPageJson?.nextPageToken;
+			}
 		}
 
-		const resJson = await res.json();
-
-		const plres = await fetchPlaylistDetails(playlistID);
-		const plresJson = await plres.json();
-		const plName = plresJson.items[0].snippet.title;
-		const plThumbnail = plresJson.items[0].snippet.thumbnails.default.url;
-		const plChannel = plresJson.items[0].snippet.channelTitle;
-
-		const videoData: IVideoData[] = resJson.items.map((e: any) => {
+		const videoData: IVideoData[] = allSnippets.map((e: any) => {
 			const data = {
 				channelTitle: e.snippet.videoOwnerChannelTitle || e.snippet.channelTitle,
 				title: e.snippet.title,
 				videoID: e.snippet.resourceId.videoId,
 				thumbnailUrl: e.snippet.thumbnails.default.url
 			};
-			console.log(data);
+			// console.log(data);
 			return data;
 		});
 
+		const plDetails = await fetchPlaylistDetails(playlistID);
 		let playlistData: IPlaylistData = {
-			playlistName: plName,
-			playlistThumbnail: plThumbnail,
-			playlistChannel: plChannel,
+			...plDetails,
 			videos: videoData
 		};
 
@@ -71,12 +72,19 @@ export const actions = {
 	}
 };
 
-const fetchPlaylistItems = async (playlistID: string) => {
-	const fetchURL = `https://youtube.googleapis.com/youtube/v3/playlistItems?playlistId=${playlistID}&part=snippet&maxResults=50&key=${SECRET_YT}`;
+const fetchPlaylistItems = async (playlistID: string, nextPageToken: string | null = null) => {
+	const fetchURL =
+		`https://youtube.googleapis.com/youtube/v3/playlistItems?playlistId=${playlistID}&part=snippet&maxResults=50&key=${SECRET_YT}` +
+		(nextPageToken ? `&pageToken=${nextPageToken}` : '');
 
 	const res = await fetch(fetchURL);
 
-	return res;
+	if (res.status != 200) {
+		return [];
+	}
+
+	const resJson = await res.json();
+	return resJson;
 };
 
 const fetchPlaylistDetails = async (playlistID: string) => {
@@ -84,7 +92,16 @@ const fetchPlaylistDetails = async (playlistID: string) => {
 
 	const res = await fetch(fetchURL);
 
-	return res;
+	const plresJson = await res.json();
+	const plName = plresJson.items[0].snippet.title;
+	const plThumbnail = plresJson.items[0].snippet.thumbnails.default.url;
+	const plChannel = plresJson.items[0].snippet.channelTitle;
+
+	return {
+		playlistName: plName,
+		playlistThumbnail: plThumbnail,
+		playlistChannel: plChannel
+	};
 };
 
 const fetchVideo = async (videoID: string) => {
