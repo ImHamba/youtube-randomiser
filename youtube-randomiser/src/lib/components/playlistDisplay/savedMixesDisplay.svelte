@@ -71,7 +71,7 @@
 		} else {
 			return {
 				title: videoGroup.data.title,
-				subtitle: videoGroup.data.channelTitle,
+				subtitle: `Video • ${videoGroup.data.channelTitle}`,
 				thumbnail: videoGroup.data.thumbnailUrl
 			};
 		}
