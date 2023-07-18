@@ -20,7 +20,7 @@
 	};
 </script>
 
-<PlaylistWrapper overflowScroll={false} --scrollbar-margin-btm="18px">
+<PlaylistWrapper permanentScrollTrack={false} --scrollbar-margin-btm="18px">
 	<div id="li-wrapper">
 		{#each videoList as video, index}
 			<li

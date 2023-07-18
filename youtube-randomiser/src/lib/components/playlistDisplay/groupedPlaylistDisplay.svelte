@@ -3,6 +3,7 @@
 	import CollapsableSection from '../collapsableSection.svelte';
 	import PlaylistWrapper from './playlistWrapper.svelte';
 	export let groupedVideoData: IGroupedVideoData;
+	export let defaultMessage = '';
 
 	const removeVideoGroup = (videoGroup: IVideoGroup) => () => {
 		groupedVideoStore.set(groupedVideoData.filter((e) => e !== videoGroup));
@@ -19,7 +20,17 @@
 	};
 </script>
 
-<PlaylistWrapper --scrollbar-margin-btm="15px" --scrollbar-margin-top="15px">
+<PlaylistWrapper
+	--scrollbar-margin-btm="15px"
+	--scrollbar-margin-top="15px"
+	heading="Your Mix"
+	permanentScrollTrack={groupedVideoData.length > 0}
+>
+	{#if groupedVideoData.length == 0}
+		<div class="default-message">
+			{defaultMessage}
+		</div>
+	{/if}
 	{#each groupedVideoData as videoGroup}
 		{#if videoGroup.isPlayList}
 			<CollapsableSection expanded={false}>
@@ -70,12 +81,20 @@
 			</li>
 		{/if}
 	{/each}
+
+	<slot name="bottomBar" slot="bottomBar" />
 </PlaylistWrapper>
 
 <style lang="scss">
 	* {
 		box-sizing: border-box;
 	}
+
+	.default-message {
+		padding-top: 20px;
+		text-align: center;
+	}
+
 	.thumbnail {
 		height: 80px;
 		aspect-ratio: 1;

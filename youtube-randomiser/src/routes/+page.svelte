@@ -3,7 +3,9 @@
 	import type { SubmitFunction } from '@sveltejs/kit';
 
 	import GroupedPlaylistDisplay from '$lib/components/playlistDisplay/groupedPlaylistDisplay.svelte';
+	import SavedMixesDisplay from '$lib/components/playlistDisplay/savedMixesDisplay.svelte';
 	import { groupedVideoStore } from '$lib/store';
+	import { get, type Writable } from 'svelte/store';
 
 	// return from form POST request is accessible through this special form prop
 	// export let form: IPlaylistDataResponse;
@@ -33,9 +35,6 @@
 				formData.set('etag', savedPlaylistData.playlistEtag);
 			}
 		}
-
-		// TODO: add cache fetching for previously fetched media id's. Only accept cached playlist id's that are less than 5 or 10 min old, incase playlist is updated
-		// TODO: remove old playlist id's from cache if it is old enough
 
 		// if the id has already been included, dont include it again
 		// if the id is invalid youtube video or playlist id, cancel request
@@ -140,6 +139,7 @@
 		groupedVideoStore.set([]);
 	};
 
+	// playlist/video id input validation checks
 	let input = '';
 	let inputIsPlaylist: boolean = false;
 	let inputIsVideo: boolean = false;
@@ -147,6 +147,50 @@
 	$: inputIsPlaylist = validatePlaylistId(input);
 	$: inputIsVideo = validateVideoId(input);
 	$: inputInvalid = !(inputIsPlaylist || inputIsVideo);
+
+	// saved mixes functionality
+	let savedMixesStore: Writable<IMix[]> | null;
+	const handleSaveMix = () => {
+		const newMix: IMix = {
+			mixName: 'test',
+			mixData: groupedVideoData
+		};
+
+		if (savedMixesStore) {
+			// check that an identical mix doesnt already exist
+			console.log(get(savedMixesStore));
+
+			const existingMix = get(savedMixesStore).find((e, i) => {
+				console.log(i);
+				console.log(checkUnorderedEquality(e.mixData, newMix.mixData));
+				return checkUnorderedEquality(e.mixData, newMix.mixData);
+			});
+
+			if (!existingMix) {
+				console.log('Saved mix');
+				savedMixesStore?.update((currentData) => {
+					return [newMix, ...currentData];
+				});
+				return;
+			}
+
+			console.log('Identical mix already exists');
+			return;
+		}
+	};
+
+	const checkUnorderedEquality = <T>(arr1: Array<T>, arr2: Array<T>) => {
+		// check if lengths are equal
+		if (arr1.length != arr2.length) {
+			return false;
+		}
+
+		// given lengths are equal, then check if each element of array 1 is in array 2
+		return arr1.every((e1) => {
+			//note: this cannot handle differently ordered nested arrays even if arrays have the same elements
+			return arr2.some((e2) => JSON.stringify(e2) == JSON.stringify(e1));
+		});
+	};
 </script>
 
 <div class="wrapper">
@@ -156,11 +200,11 @@
 			<form use:enhance={handleAddID} method="POST" action="?/getVideo">
 				<!-- Buttons swap in and out depending on whether user input is invalid, video ID or playlist ID -->
 				{#if !awaitingResponse}
-					<button class="add-btn active" formaction="?/getPlaylist" class:hidden={!inputIsPlaylist}>
+					<button class="add-btn active hover-highlight" formaction="?/getPlaylist" class:hidden={!inputIsPlaylist}>
 						<i class="fa-solid fa-plus" />
 					</button>
 
-					<button class="add-btn active" formaction="?/getVideo" class:hidden={!inputIsVideo}>
+					<button class="add-btn active hover-highlight" formaction="?/getVideo" class:hidden={!inputIsVideo}>
 						<i class="fa-solid fa-plus" />
 					</button>
 
@@ -181,25 +225,43 @@
 				/>
 			</form>
 		</div>
-		<div class="playlist-display-wrapper">
-			<GroupedPlaylistDisplay {groupedVideoData} />
+		<div class="panel-container">
+			<div class="panel">
+				<div class="playlist-display-wrapper">
+					<GroupedPlaylistDisplay {groupedVideoData} defaultMessage="No videos added yet.">
+						<div class="btn-wrapper" slot="bottomBar">
+							<button
+								class="shuffle-btn bottom-btn hover-highlight"
+								class:bottom-btn-disabled={groupedVideoData.length == 0}
+							>
+								<a href="/player">
+									<i class="fa-solid fa-play" />
+								</a>
+							</button>
+							<button
+								class="bottom-btn hover-highlight"
+								on:click={handleClearVideos}
+								class:bottom-btn-disabled={groupedVideoData.length == 0}
+							>
+								<i class="fa-solid fa-trash-can" />
+							</button>
+							<button
+								class="bottom-btn hover-highlight"
+								on:click={handleSaveMix}
+								class:bottom-btn-disabled={groupedVideoData.length == 0}
+							>
+								<i class="fa-solid fa-bookmark" />
+							</button>
+						</div>
+					</GroupedPlaylistDisplay>
+				</div>
+			</div>
+			<div class="panel">
+				<div class="playlist-display-wrapper">
+					<SavedMixesDisplay savedMixesKey="savedMixes" bind:savedMixesStore />
+				</div>
+			</div>
 		</div>
-	</div>
-	<div class="btn-wrapper">
-		<button class="shuffle-btn bottom-btn" class:bottom-btn-disabled={groupedVideoData.length == 0}>
-			<a href="/player">
-				<i class="fa-solid fa-shuffle" />
-				Shuffle
-			</a>
-		</button>
-		<button
-			class="clear-btn bottom-btn"
-			on:click={handleClearVideos}
-			class:bottom-btn-disabled={groupedVideoData.length == 0}
-		>
-			<i class="fa-solid fa-rotate-right" />
-			Clear
-		</button>
 	</div>
 </div>
 
@@ -227,10 +289,23 @@
 		display: flex;
 		flex-direction: column;
 		padding: 0px 20px 20px;
-		width: 50%;
+		width: 80%;
 		height: 100%;
 
 		min-height: 0;
+	}
+
+	.panel-container {
+		height: 100%;
+		width: 100%;
+		display: flex;
+		gap: 20px;
+		min-height: 0;
+	}
+
+	.panel {
+		height: 100%;
+		width: 100%;
 	}
 
 	.playlist-display-wrapper {
@@ -243,8 +318,6 @@
 		overflow: hidden;
 		height: 100%;
 		width: 100%;
-
-		min-height: 0;
 	}
 
 	.playlist-input {
@@ -283,10 +356,13 @@
 		.add-btn {
 			text-align: center;
 			padding: 0px;
-			width: 30px;
-			margin-right: 10px;
-			// aspect-ratio: 1;
+			height: 45px;
+			aspect-ratio: 1;
+			margin-right: 5px;
 			transition: all 0.1s ease;
+
+			border-radius: 100px;
+			// padding: 5px
 
 			i {
 				font-size: 30px;
@@ -298,7 +374,7 @@
 		}
 
 		.add-btn:hover {
-			opacity: 0.9;
+			opacity: 1;
 		}
 
 		.waiting-spinner {
@@ -324,20 +400,25 @@
 		display: flex;
 
 		.shuffle-btn a {
+			margin-left: 2px;
 			text-decoration: none;
-			display: flex;
-			align-items: center;
 		}
 
 		.bottom-btn {
+			height: 45px;
+			aspect-ratio: 1;
+			text-align: center;
 			margin: 0px 10px;
-			font-size: 1.2em;
 			display: flex;
 			align-items: center;
+			justify-content: center;
+			opacity: 1;
 			i {
-				font-size: 1.3em;
-				margin-right: 5px;
+				font-size: 25px;
+				vertical-align: middle;
+				// margin-right: 5px;
 			}
+			border-radius: 100px;
 		}
 
 		.bottom-btn-disabled {

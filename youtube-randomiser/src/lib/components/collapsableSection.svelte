@@ -11,7 +11,7 @@
 			expanded = !expanded;
 		}}
 	>
-		<i class="fa-solid fa-angle-down" class:rotated={!expanded} />
+		<i class="fa-solid fa-angle-down" class:rotated={expanded} />
 	</button>
 </div>
 {#if expanded}

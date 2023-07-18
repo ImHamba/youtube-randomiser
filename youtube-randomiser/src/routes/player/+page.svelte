@@ -172,25 +172,25 @@
 <div class="wrapper">
 	<div class="left-wrapper">
 		<div class="controls-container">
-			<button on:click={loadPreviousVideo}>
+			<button class="hover-highlight" on:click={loadPreviousVideo}>
 				<i class="fa-solid fa-backward-step" />
 			</button>
-			<button on:click={unpauseVideo} class:hidden={!videoPaused}>
+			<button class="play-btn hover-highlight" on:click={unpauseVideo} class:hidden={!videoPaused}>
 				<i class="fa-solid fa-play" />
 			</button>
-			<button class="pause-btn" on:click={pauseVideo} class:hidden={videoPaused}>
+			<button class="hover-highlight" on:click={pauseVideo} class:hidden={videoPaused}>
 				<i class="fa-solid fa-pause" />
 			</button>
-			<button on:click={loadNextVideo}>
+			<button class="hover-highlight" on:click={loadNextVideo}>
 				<i class="fa-solid fa-forward-step" />
 			</button>
-			<button on:click={shuffleVideos}>
+			<button class="hover-highlight" on:click={shuffleVideos}>
 				<i class="fa-solid fa-shuffle" />
 			</button>
-			<button on:click={toggleLoopVideo} class:inactive={!loopVideo}>
+			<button class="hover-highlight" on:click={toggleLoopVideo} class:inactive={!loopVideo}>
 				<i class="fa-solid fa-repeat" />
 			</button>
-			<button>
+			<button class="hover-highlight">
 				<a href="./"><i class="fa-solid fa-plus" /></a>
 			</button>
 		</div>
@@ -245,6 +245,7 @@
 		// overflow: hidden;
 		display: flex;
 		flex-wrap: wrap;
+		gap: 3px;
 		justify-content: center;
 		align-items: center;
 		border-radius: 25px 25px 5px 5px;
@@ -253,17 +254,17 @@
 
 		button {
 			// min-width: 0;
-			height: 50%;
+			height: 50px;
 			aspect-ratio: 1;
 			border-radius: 50%;
 			// border: 1px red solid;
-			font-size: 2em;
-			margin: 0px clamp(1px, 5px, 10px);
-			padding: 0px;
+			font-size: 35px;
 		}
 
-		.pause-btn {
-			// font-size: 2.1em;
+		.play-btn {
+			i {
+				padding-left: 3px;
+			}
 		}
 	}
 

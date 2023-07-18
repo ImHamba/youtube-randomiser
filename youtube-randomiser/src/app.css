@@ -102,3 +102,7 @@ h4 {
 		line-height: 1.136em;
 	}
 }
+
+.hover-highlight:hover {
+	background-color: #ffffff10;
+}
