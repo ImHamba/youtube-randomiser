@@ -103,6 +103,9 @@ h4 {
 	}
 }
 
+.hover-highlight{
+	transition: background-color 50ms ease;
+}
 .hover-highlight:hover {
 	background-color: #ffffff10;
 }

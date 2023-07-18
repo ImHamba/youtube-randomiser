@@ -6,6 +6,8 @@
 	import SavedMixesDisplay from '$lib/components/playlistDisplay/savedMixesDisplay.svelte';
 	import { groupedVideoStore } from '$lib/store';
 	import { get, type Writable } from 'svelte/store';
+	import { clickOutside } from '$lib/misc/clickOutside';
+	import { restringify } from '$lib/misc/util';
 
 	// return from form POST request is accessible through this special form prop
 	// export let form: IPlaylistDataResponse;
@@ -18,21 +20,25 @@
 	});
 
 	let awaitingResponse = false;
+	let savedPlaylistLocalstorageKey = 'previouslyFetchedPlaylists';
 
 	const handleAddID: SubmitFunction = ({ formData, cancel, action }) => {
 		const ytMediaID = formData.get('ytMediaID')?.toString() as string;
 
 		if (action.search == '?/getPlaylist') {
 			// check if playlist id has already been saved on this device
-			const savedPlaylistDataJson = localStorage.getItem(ytMediaID);
+			const savedPlaylistDataJson = localStorage.getItem(savedPlaylistLocalstorageKey);
 
 			if (savedPlaylistDataJson != null) {
-				const savedPlaylistData: IPlaylistData = JSON.parse(savedPlaylistDataJson);
+				const savedPlaylistData: IPlaylistData | null =
+					JSON.parse(savedPlaylistDataJson)[ytMediaID];
 
-				console.log('Found in localstorage:', ytMediaID);
+				if (savedPlaylistData) {
+					console.log('Found in localstorage:', ytMediaID);
 
-				// add playlist etag to playlist request
-				formData.set('etag', savedPlaylistData.playlistEtag);
+					// add playlist etag to playlist request
+					formData.set('etag', savedPlaylistData.playlistEtag);
+				}
 			}
 		}
 
@@ -70,8 +76,10 @@
 						console.log('Playlist found, status:', response.status);
 
 						if (response.status == 304) {
-							const savedPlaylistDataJson = localStorage.getItem(ytMediaID) as string;
-							data = JSON.parse(savedPlaylistDataJson);
+							const savedPlaylistDataJson = localStorage.getItem(
+								savedPlaylistLocalstorageKey
+							) as string;
+							data = JSON.parse(savedPlaylistDataJson)[ytMediaID];
 
 							console.log('Found in localstorage and unchanged on yt:', data.playlistId);
 
@@ -81,7 +89,12 @@
 							data = response.message;
 
 							// save playlist data to local storage
-							localStorage.setItem(data.playlistId, JSON.stringify(data));
+							// localStorage.setItem(data.playlistId, JSON.stringify(data));
+							const currentLS = JSON.parse(
+								localStorage.getItem(savedPlaylistLocalstorageKey) || '{}'
+							);
+							const newLS = { ...currentLS, [data.playlistId]: data };
+							localStorage.setItem(savedPlaylistLocalstorageKey, JSON.stringify(newLS));
 
 							console.log('Saving to localstorage:', data.playlistId);
 
@@ -150,41 +163,41 @@
 
 	// saved mixes functionality
 	let savedMixesStore: Writable<IMix[]> | null;
-	const handleSaveMix = async () => {
-		const newMixName = await getMixName();
+	let showPopupInput = false;
+	let mixNameInput: string;
+	const handleSaveMix = (newMixName: string) => () => {
+		// do not save empty mix name
+		if (newMixName == '') {
+			// TODO: add pop up telling user to enter a name
+			return;
+		}
 
 		const newMix: IMix = {
-			mixName: 'test',
+			mixName: newMixName,
 			mixData: groupedVideoData
 		};
 
 		if (savedMixesStore) {
 			// check that an identical mix doesnt already exist
-			console.log(get(savedMixesStore));
-
 			const existingMix = get(savedMixesStore).find((e, i) => {
-				console.log(i);
-				console.log(checkUnorderedEquality(e.mixData, newMix.mixData));
 				return checkUnorderedEquality(e.mixData, newMix.mixData);
 			});
 
+			// if there is no identical mix, update saved mixes and reset mix name input
 			if (!existingMix) {
 				console.log('Saved mix');
 				savedMixesStore?.update((currentData) => {
-					return [newMix, ...currentData];
+					return [restringify(newMix), ...currentData];
 				});
+				showPopupInput = false;
+				mixNameInput = '';
 				return;
 			}
 
 			console.log('Identical mix already exists');
+			// TODO: add pop up telling user identical mix already exists
 			return;
 		}
-	};
-
-	let showPopupInput = false;
-	let mixNameInput: HTMLElement;
-	const getMixName = async () => {
-		showPopupInput = true;
 	};
 
 	const checkUnorderedEquality = <T>(arr1: Array<T>, arr2: Array<T>) => {
@@ -244,10 +257,24 @@
 		<div class="panel-container">
 			<div class="panel">
 				<div class="playlist-display-wrapper">
-					<GroupedPlaylistDisplay {groupedVideoData} defaultMessage="No videos added yet.">
+					<GroupedPlaylistDisplay
+						{groupedVideoData}
+						defaultMessage="Add playlists or videos above."
+					>
 						<div class="btm-bar-wrapper" slot="bottomBar">
 							{#if showPopupInput}
-								<input bind:this={mixNameInput} placeholder="Enter a name for your playlist" />
+								<div
+									class="mix-name-input"
+									use:clickOutside
+									on:click_outside={() => {
+										showPopupInput = false;
+									}}
+								>
+									<input bind:value={mixNameInput} placeholder="Enter a name for your playlist" />
+									<button class="hover-highlight" on:click={handleSaveMix(mixNameInput)}
+										><i class="fa-solid fa-check" /></button
+									>
+								</div>
 							{/if}
 							<div class="btn-wrapper">
 								<button
@@ -267,7 +294,9 @@
 								</button>
 								<button
 									class="bottom-btn hover-highlight"
-									on:click={handleSaveMix}
+									on:click={() => {
+										showPopupInput = !showPopupInput;
+									}}
 									class:bottom-btn-disabled={groupedVideoData.length == 0}
 								>
 									<i class="fa-solid fa-bookmark" />
@@ -424,17 +453,35 @@
 		align-items: center;
 		justify-content: center;
 
-		input {
+		.mix-name-input {
+			display: flex;
+			align-items: center;
+			justify-content: center;
 			width: 50%;
-			min-width: 200px;
-			margin-bottom: 5px;
-			background: #00000020;
-			border: none;
-			border-radius: 50px;
-			padding: 0px 15px;
-			height: 40px;
-			font-size: 0.9em;
-			outline: none;
+			margin-bottom: 10px;
+
+			input {
+				width: 100%;
+				min-width: 200px;
+				background: #00000020;
+				border: none;
+				border-radius: 50px;
+				padding: 0px 15px;
+				height: 40px;
+				font-size: 0.9em;
+				outline: none;
+			}
+
+			button {
+				width: 45px;
+				aspect-ratio: 1;
+				border-radius: 100px;
+				margin-left: 5px;
+
+				i {
+					font-size: 20px;
+				}
+			}
 		}
 
 		.btn-wrapper {
