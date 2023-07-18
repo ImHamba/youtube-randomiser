@@ -7,7 +7,7 @@
 <div class="header">
 	<slot name="header" />
 	<button
-		on:click={() => {
+		on:click|stopPropagation={() => {
 			expanded = !expanded;
 		}}
 	>
