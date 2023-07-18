@@ -259,7 +259,7 @@
 				<div class="playlist-display-wrapper">
 					<GroupedPlaylistDisplay
 						{groupedVideoData}
-						defaultMessage="Add playlists or videos above."
+						defaultMessage="Add playlists and videos above, or load a saved mix."
 					>
 						<div class="btm-bar-wrapper" slot="bottomBar">
 							{#if showPopupInput}

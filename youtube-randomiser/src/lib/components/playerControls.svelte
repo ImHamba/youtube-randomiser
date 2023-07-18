@@ -1,0 +1,148 @@
+<script lang="ts">
+	import { shuffleArray } from '$lib/misc/util';
+	import { SvelteComponent, onMount } from 'svelte';
+	import type MixDisplay from './playlistDisplay/mixDisplay.svelte';
+	import { getCurrentVideoId, loadVideo } from '$lib/misc/playerUtil';
+
+	export let player: any;
+	export let currentVideoID: string;
+	export let videoList: IVideoData[];
+	export let videoIndex: number;
+	export let mixDisplay: MixDisplay;
+
+	onMount(() => {
+		const endedInterval = setInterval(() => {
+			// if the player exists (i.e. has loaded), check if the state is 0 for video has ended.
+			// if so, load the next video
+			// console.log('Checking if video ended');
+			if (player && player.getPlayerState() == 0) {
+				if (loopVideo) {
+					loadVideo(player, getCurrentVideoId(videoList, videoIndex));
+				} else {
+					// console.log('Going to next video');
+					loadNextVideo();
+				}
+			}
+		}, 500);
+
+		const videoPausedInterval = setInterval(() => {
+			videoPaused = isVideoPaused();
+		}, 10);
+
+		return () => {
+			clearInterval(endedInterval);
+			clearInterval(videoPausedInterval);
+		};
+	});
+
+	
+
+	const loadNextVideo = () => {
+		videoIndex = Math.min(videoList.length - 1, videoIndex + 1);
+		loadVideo(player, getCurrentVideoId(videoList, videoIndex));
+		mixDisplay.scrollToListIndex(videoIndex);
+	};
+
+	const loadPreviousVideo = () => {
+		videoIndex = Math.max(0, videoIndex - 1);
+		loadVideo(player, getCurrentVideoId(videoList, videoIndex));
+		mixDisplay.scrollToListIndex(videoIndex);
+	};
+
+	const shuffleVideos = () => {
+		videoList = shuffleArray(videoList);
+		videoIndex = 0;
+		loadVideo(player, getCurrentVideoId(videoList, videoIndex));
+		mixDisplay.scrollToListIndex(videoIndex);
+	};
+
+	let videoPaused = false;
+
+	const pauseVideo = () => {
+		player.pauseVideo();
+		videoPaused = isVideoPaused();
+	};
+
+	const unpauseVideo = () => {
+		player.playVideo();
+		videoPaused = isVideoPaused();
+	};
+
+	const isVideoPaused = () => {
+		if (player && player.getPlayerState) {
+			return player.getPlayerState() == 2;
+		}
+		return false;
+	};
+
+	let loopVideo = false;
+	const toggleLoopVideo = () => {
+		loopVideo = !loopVideo;
+	};
+</script>
+
+<div class="controls-container">
+	<button class="hover-highlight" on:click={loadPreviousVideo}>
+		<i class="fa-solid fa-backward-step" />
+	</button>
+	<button class="play-btn hover-highlight" on:click={unpauseVideo} class:hidden={!videoPaused}>
+		<i class="fa-solid fa-play" />
+	</button>
+	<button class="hover-highlight" on:click={pauseVideo} class:hidden={videoPaused}>
+		<i class="fa-solid fa-pause" />
+	</button>
+	<button class="hover-highlight" on:click={loadNextVideo}>
+		<i class="fa-solid fa-forward-step" />
+	</button>
+	<button class="hover-highlight" on:click={shuffleVideos}>
+		<i class="fa-solid fa-shuffle" />
+	</button>
+	<button class="hover-highlight" on:click={toggleLoopVideo} class:inactive={!loopVideo}>
+		<i class="fa-solid fa-repeat" />
+	</button>
+	<button class="hover-highlight">
+		<a href="./"><i class="fa-solid fa-plus" /></a>
+	</button>
+</div>
+
+<style lang="scss">
+	.controls-container {
+		@import './src/app.scss';
+		@include glass-background;
+
+		min-height: 80px;
+		width: 100%;
+		// overflow: hidden;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 3px;
+		justify-content: center;
+		align-items: center;
+		border-radius: 25px 25px 5px 5px;
+		// border: 1px red solid;
+		margin-bottom: 5px;
+
+		button {
+			// min-width: 0;
+			height: 50px;
+			aspect-ratio: 1;
+			border-radius: 50%;
+			// border: 1px red solid;
+			font-size: 35px;
+		}
+
+		.play-btn {
+			i {
+				padding-left: 3px;
+			}
+		}
+	}
+
+	.hidden {
+		display: none;
+	}
+
+	.inactive {
+		opacity: 0.3;
+	}
+</style>

@@ -1,8 +1,9 @@
 <script lang="ts">
+	import PlayerControls from '$lib/components/playerControls.svelte';
 	import MixDisplay from '$lib/components/playlistDisplay/mixDisplay.svelte';
 	import Youtube from '$lib/components/youtube.svelte';
+	import { arrayMoveElement, shuffleArray, sleep } from '$lib/misc/util';
 	import { groupedVideoStore } from '$lib/store';
-	import { onMount } from 'svelte';
 
 	let videoList: IVideoData[] = [];
 	let videoListInitialised = false;
@@ -10,13 +11,6 @@
 	let currentVideoID: string = '';
 
 	let player: any = null;
-
-	// shuffle list randomly
-	const shuffleArray = <T>(array: Array<T>) => {
-		let newArr = [...array];
-		newArr.sort(() => Math.random() - 0.5);
-		return newArr;
-	};
 
 	const extractFromGroupedVideoData = (someGroupedVideoData: IGroupedVideoData) => {
 		let videoList: IVideoData[];
@@ -52,148 +46,22 @@
 		}
 	});
 
-	// $: currentVideoID = videoList[videoIndex]?.videoID || '';
-
-	const arrayMove = <T>(arr: Array<T>, fromIndex: number, toIndex: number) => {
-		let newArr: Array<T> = [];
-		if (fromIndex < toIndex) {
-			newArr = newArr.concat(
-				arr.slice(0, fromIndex),
-				arr.slice(fromIndex + 1, toIndex),
-				[arr[fromIndex]],
-				arr.slice(toIndex)
-			);
-		} else {
-			newArr = newArr.concat(
-				arr.slice(0, toIndex),
-				[arr[fromIndex]],
-				arr.slice(toIndex, fromIndex),
-				arr.slice(fromIndex + 1)
-			);
-		}
-		return newArr;
-	};
-
-	let swapToIndex: number = -1;
+	let playerControls: PlayerControls;
 	let mixDisplay: MixDisplay;
-	$: {
-		// bring the swapped to video to one after the current video and change to it
-		if (swapToIndex >= 0 && swapToIndex != videoIndex) {
-			videoList = arrayMove(videoList, swapToIndex, videoIndex + 1);
-			videoList = videoList;
-			if (swapToIndex > videoIndex) {
-				videoIndex += 1;
-			}
-			loadVideo();
-			mixDisplay.scrollToListIndex(videoIndex);
-
-			swapToIndex = -1;
-		}
-	}
 
 	let searchTerm = '';
-
-	onMount(() => {
-		const endedInterval = setInterval(() => {
-			// if the player exists (i.e. has loaded), check if the state is 0 for video has ended.
-			// if so, load the next video
-			// console.log('Checking if video ended');
-			if (player && player.getPlayerState() == 0) {
-				if (loopVideo) {
-					loadVideo();
-				} else {
-					// console.log('Going to next video');
-					loadNextVideo();
-				}
-			}
-		}, 500);
-
-		const videoPausedInterval = setInterval(() => {
-			videoPaused = isVideoPaused();
-		}, 10);
-
-		return () => {
-			clearInterval(endedInterval);
-			clearInterval(videoPausedInterval);
-		};
-	});
-
-	const loadVideo = () => {
-		currentVideoID = videoList[videoIndex]?.videoID || '';
-		player.loadVideoById(currentVideoID);
-		player.seekTo(0);
-		player.playVideo();
-	};
-
-	const loadNextVideo = () => {
-		videoIndex = Math.min(videoList.length - 1, videoIndex + 1);
-		loadVideo();
-		mixDisplay.scrollToListIndex(videoIndex);
-	};
-
-	const loadPreviousVideo = () => {
-		videoIndex = Math.max(0, videoIndex - 1);
-		loadVideo();
-		mixDisplay.scrollToListIndex(videoIndex);
-	};
-
-	const shuffleVideos = () => {
-		videoList = shuffleArray(videoList);
-		videoIndex = 0;
-		loadVideo();
-		mixDisplay.scrollToListIndex(videoIndex);
-	};
-
-	let videoPaused = false;
-
-	const pauseVideo = () => {
-		player.pauseVideo();
-		videoPaused = isVideoPaused();
-	};
-
-	const unpauseVideo = () => {
-		player.playVideo();
-		videoPaused = isVideoPaused();
-	};
-
-	const isVideoPaused = () => {
-		if (player && player.getPlayerState) {
-			return player.getPlayerState() == 2;
-		}
-		return false;
-	};
-
-	let loopVideo = false;
-	const toggleLoopVideo = () => {
-		loopVideo = !loopVideo;
-	};
 </script>
 
 <div class="wrapper">
 	<div class="left-wrapper">
-		<div class="controls-container">
-			<button class="hover-highlight" on:click={loadPreviousVideo}>
-				<i class="fa-solid fa-backward-step" />
-			</button>
-			<button class="play-btn hover-highlight" on:click={unpauseVideo} class:hidden={!videoPaused}>
-				<i class="fa-solid fa-play" />
-			</button>
-			<button class="hover-highlight" on:click={pauseVideo} class:hidden={videoPaused}>
-				<i class="fa-solid fa-pause" />
-			</button>
-			<button class="hover-highlight" on:click={loadNextVideo}>
-				<i class="fa-solid fa-forward-step" />
-			</button>
-			<button class="hover-highlight" on:click={shuffleVideos}>
-				<i class="fa-solid fa-shuffle" />
-			</button>
-			<button class="hover-highlight" on:click={toggleLoopVideo} class:inactive={!loopVideo}>
-				<i class="fa-solid fa-repeat" />
-			</button>
-			<button class="hover-highlight">
-				<a href="./"><i class="fa-solid fa-plus" /></a>
-			</button>
-		</div>
+		<PlayerControls
+			bind:this={playerControls}
+			{player}
+			bind:currentVideoID
+			bind:videoList
+			bind:videoIndex
+			bind:mixDisplay
+		/>
 		<div class="btm-panel">
 			<div class="search-bar-wrapper">
 				<div class="search-bar">
@@ -203,9 +71,9 @@
 			</div>
 			<div class="playlist-display-wrapper">
 				<MixDisplay
-					{videoList}
-					bind:activeVideoIndex={videoIndex}
-					bind:swapToIndex
+					{player}
+					bind:videoList
+					bind:videoIndex
 					bind:this={mixDisplay}
 					bind:searchTerm
 				/>
@@ -234,38 +102,6 @@
 		height: 80%;
 		width: 30%;
 		margin: 0px 20px;
-	}
-
-	.controls-container {
-		@import './src/app.scss';
-		@include glass-background;
-
-		min-height: 80px;
-		width: 100%;
-		// overflow: hidden;
-		display: flex;
-		flex-wrap: wrap;
-		gap: 3px;
-		justify-content: center;
-		align-items: center;
-		border-radius: 25px 25px 5px 5px;
-		// border: 1px red solid;
-		margin-bottom: 5px;
-
-		button {
-			// min-width: 0;
-			height: 50px;
-			aspect-ratio: 1;
-			border-radius: 50%;
-			// border: 1px red solid;
-			font-size: 35px;
-		}
-
-		.play-btn {
-			i {
-				padding-left: 3px;
-			}
-		}
 	}
 
 	.btm-panel {
@@ -331,13 +167,5 @@
 
 		border-radius: 25px;
 		overflow: hidden;
-	}
-
-	.hidden {
-		display: none;
-	}
-
-	.inactive {
-		opacity: 0.3;
 	}
 </style>

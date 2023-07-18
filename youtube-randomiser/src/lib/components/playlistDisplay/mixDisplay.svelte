@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { sleep } from '$lib/misc/util';
+	import { getCurrentVideoId, loadVideo } from '$lib/misc/playerUtil';
+	import { arrayMoveElement, sleep } from '$lib/misc/util';
 	import PlaylistWrapper from './playlistWrapper.svelte';
 	export let videoList: IVideoData[];
-	export let activeVideoIndex = -1;
-	export let swapToIndex: number;
+	export let videoIndex: number;
+	export let player: any;
 
 	export const scrollToListIndex = (scrollToIndex: number) => {
 		const liElement = document
@@ -21,26 +22,28 @@
 	let listElement: HTMLElement[] = [];
 	let transitionAnimTime = 300; // time in ms
 	let directionDown = false;
-	const handleSwapVideo = (index: number) => async () => {
+	const handleSwapVideo = (swapToIndex: number) => async () => {
 		// no swapping if clicking on current video
-		if (index == activeVideoIndex) {
+		if (swapToIndex == videoIndex) {
 			return;
 		}
 
-		// no fade/fly animation required if the video is the next one, since it is already in the correct place
-		if (index != activeVideoIndex + 1) {
+		// no animation out of clicked video required if the video is the next one, since it is already in the correct place
+		// always animate out if there user was searching though
+		if (swapToIndex != videoIndex + 1 || searchTerm) {
 			if (searchTerm) {
-				directionDown = true
+				directionDown = true;
 			}
 
-			let target = listElement[index];
+			console.log(swapToIndex);
+			let target = listElement[swapToIndex];
 			target.classList.remove('fade');
 			target.classList.add('fade');
 			await sleep(transitionAnimTime * (2 / 3));
 			target.classList.remove('fade');
 		}
 
-		directionDown = false
+		directionDown = false;
 
 		if (searchTerm) {
 			searchTerm = '';
@@ -48,10 +51,14 @@
 			// sleep is required to scroll to newly selected video properly
 			await sleep(1);
 		}
-		swapToIndex = index;
-	};
 
-	$: console.log(videoList[1]);
+		videoList = arrayMoveElement(videoList, swapToIndex, videoIndex + 1);
+		if (swapToIndex > videoIndex) {
+			videoIndex += 1;
+		}
+		loadVideo(player, getCurrentVideoId(videoList, videoIndex));
+		scrollToListIndex(videoIndex);
+	};
 </script>
 
 <PlaylistWrapper permanentScrollTrack={false} --scrollbar-margin-btm="18px">
@@ -60,7 +67,7 @@
 			<!-- svelte-ignore a11y-click-events-have-key-events -->
 			<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 			<li
-				class:active={index == activeVideoIndex}
+				class:active={index == videoIndex}
 				class:hidden={!(
 					containsSubstring(video.title, searchTerm) ||
 					containsSubstring(video.channelTitle, searchTerm)
@@ -68,8 +75,7 @@
 				on:click={handleSwapVideo(index)}
 				bind:this={listElement[index]}
 				class:fade={false}
-				style="--anim-time:{transitionAnimTime}ms; --direction:{directionDown ||
-				index < activeVideoIndex
+				style="--anim-time:{transitionAnimTime}ms; --direction:{directionDown || index < videoIndex
 					? 1
 					: -1}"
 			>
