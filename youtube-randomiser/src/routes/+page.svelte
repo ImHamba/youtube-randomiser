@@ -150,7 +150,9 @@
 
 	// saved mixes functionality
 	let savedMixesStore: Writable<IMix[]> | null;
-	const handleSaveMix = () => {
+	const handleSaveMix = async () => {
+		const newMixName = await getMixName();
+
 		const newMix: IMix = {
 			mixName: 'test',
 			mixData: groupedVideoData
@@ -179,6 +181,12 @@
 		}
 	};
 
+	let showPopupInput = false;
+	let mixNameInput: HTMLElement;
+	const getMixName = async () => {
+		showPopupInput = true;
+	};
+
 	const checkUnorderedEquality = <T>(arr1: Array<T>, arr2: Array<T>) => {
 		// check if lengths are equal
 		if (arr1.length != arr2.length) {
@@ -200,11 +208,19 @@
 			<form use:enhance={handleAddID} method="POST" action="?/getVideo">
 				<!-- Buttons swap in and out depending on whether user input is invalid, video ID or playlist ID -->
 				{#if !awaitingResponse}
-					<button class="add-btn active hover-highlight" formaction="?/getPlaylist" class:hidden={!inputIsPlaylist}>
+					<button
+						class="add-btn active hover-highlight"
+						formaction="?/getPlaylist"
+						class:hidden={!inputIsPlaylist}
+					>
 						<i class="fa-solid fa-plus" />
 					</button>
 
-					<button class="add-btn active hover-highlight" formaction="?/getVideo" class:hidden={!inputIsVideo}>
+					<button
+						class="add-btn active hover-highlight"
+						formaction="?/getVideo"
+						class:hidden={!inputIsVideo}
+					>
 						<i class="fa-solid fa-plus" />
 					</button>
 
@@ -229,29 +245,34 @@
 			<div class="panel">
 				<div class="playlist-display-wrapper">
 					<GroupedPlaylistDisplay {groupedVideoData} defaultMessage="No videos added yet.">
-						<div class="btn-wrapper" slot="bottomBar">
-							<button
-								class="shuffle-btn bottom-btn hover-highlight"
-								class:bottom-btn-disabled={groupedVideoData.length == 0}
-							>
-								<a href="/player">
-									<i class="fa-solid fa-play" />
-								</a>
-							</button>
-							<button
-								class="bottom-btn hover-highlight"
-								on:click={handleClearVideos}
-								class:bottom-btn-disabled={groupedVideoData.length == 0}
-							>
-								<i class="fa-solid fa-trash-can" />
-							</button>
-							<button
-								class="bottom-btn hover-highlight"
-								on:click={handleSaveMix}
-								class:bottom-btn-disabled={groupedVideoData.length == 0}
-							>
-								<i class="fa-solid fa-bookmark" />
-							</button>
+						<div class="btm-bar-wrapper" slot="bottomBar">
+							{#if showPopupInput}
+								<input bind:this={mixNameInput} placeholder="Enter a name for your playlist" />
+							{/if}
+							<div class="btn-wrapper">
+								<button
+									class="shuffle-btn bottom-btn hover-highlight"
+									class:bottom-btn-disabled={groupedVideoData.length == 0}
+								>
+									<a href="/player">
+										<i class="fa-solid fa-play" />
+									</a>
+								</button>
+								<button
+									class="bottom-btn hover-highlight"
+									on:click={handleClearVideos}
+									class:bottom-btn-disabled={groupedVideoData.length == 0}
+								>
+									<i class="fa-solid fa-trash-can" />
+								</button>
+								<button
+									class="bottom-btn hover-highlight"
+									on:click={handleSaveMix}
+									class:bottom-btn-disabled={groupedVideoData.length == 0}
+								>
+									<i class="fa-solid fa-bookmark" />
+								</button>
+							</div>
 						</div>
 					</GroupedPlaylistDisplay>
 				</div>
@@ -396,35 +417,61 @@
 		}
 	}
 
-	.btn-wrapper {
+	.btm-bar-wrapper {
+		width: 100%;
 		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
 
-		.shuffle-btn a {
-			margin-left: 2px;
-			text-decoration: none;
+		input {
+			width: 50%;
+			min-width: 200px;
+			margin-bottom: 5px;
+			background: #00000020;
+			border: none;
+			border-radius: 50px;
+			padding: 0px 15px;
+			height: 40px;
+			font-size: 0.9em;
+			outline: none;
 		}
 
-		.bottom-btn {
-			height: 45px;
-			aspect-ratio: 1;
-			text-align: center;
-			margin: 0px 10px;
+		.btn-wrapper {
 			display: flex;
-			align-items: center;
-			justify-content: center;
-			opacity: 1;
-			i {
-				font-size: 25px;
-				vertical-align: middle;
-				// margin-right: 5px;
-			}
-			border-radius: 100px;
-		}
 
-		.bottom-btn-disabled {
-			pointer-events: none;
-			cursor: default;
-			opacity: 0.3;
+			.shuffle-btn a {
+				width: 100%;
+				height: 100%;
+				margin-left: 2px;
+				text-decoration: none;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.bottom-btn {
+				height: 45px;
+				aspect-ratio: 1;
+				text-align: center;
+				margin: 0px 10px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				opacity: 1;
+				i {
+					font-size: 25px;
+					vertical-align: middle;
+					// margin-right: 5px;
+				}
+				border-radius: 100px;
+			}
+
+			.bottom-btn-disabled {
+				pointer-events: none;
+				cursor: default;
+				opacity: 0.3;
+			}
 		}
 	}
 

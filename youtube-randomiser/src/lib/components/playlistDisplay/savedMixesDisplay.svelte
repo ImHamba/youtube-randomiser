@@ -3,7 +3,7 @@
 	import { writable, type Writable } from 'svelte/store';
 	import CollapsableSection from '../collapsableSection.svelte';
 	import PlaylistWrapper from './playlistWrapper.svelte';
-	import { fade } from 'svelte/transition';
+	import { groupedVideoStore } from '$lib/store';
 
 	export let savedMixesStore: Writable<IMix[]> | null;
 	export let savedMixesKey: string;
@@ -82,6 +82,10 @@
 			return currentData.slice(0, mixIndex).concat(currentData.slice(mixIndex + 1));
 		});
 	};
+
+	const loadMix = (savedMix: IMix) => () => {
+		groupedVideoStore.set(savedMix.mixData);
+	}
 </script>
 
 <PlaylistWrapper
@@ -96,7 +100,7 @@
 		</div>
 	{/if}
 	{#each savedMixes as savedMix, index}
-		<div>
+		<div class="row-wrapper" on:click={loadMix(savedMix)}>
 			<CollapsableSection expanded={false}>
 				<li class="list-header" slot="header">
 					<div class="thumbnail" style:background-image={`url(${getMixThumbnail(savedMix)}`} />
@@ -104,7 +108,9 @@
 						<div class="list-title">
 							{savedMix.mixName}
 						</div>
-						<div class="list-subtitle">Mix • {countMixVideos(savedMix)} videos</div>
+						<div class="list-subtitle">
+							Mix • {countMixVideos(savedMix)} video{countMixVideos(savedMix) > 1 ? 's' : ''}
+						</div>
 					</div>
 					<button class="delete-btn" on:click={removeMix(index)}>
 						<i class="fa-solid fa-xmark" />
@@ -168,6 +174,10 @@
 
 	li:nth-last-child(1) {
 		border-bottom: none;
+	}
+
+	.row-wrapper:hover {
+		background-color: #ffffff10;
 	}
 
 	.list-item {
