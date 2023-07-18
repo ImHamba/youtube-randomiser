@@ -85,7 +85,15 @@
 
 	const loadMix = (savedMix: IMix) => () => {
 		groupedVideoStore.set(savedMix.mixData);
-	}
+	};
+
+	const orderMixesAlphabetically = (mixes: IMix[]) => {
+		const newArr = [...mixes];
+		newArr.sort((a, b) => {
+			return a.mixName.localeCompare(b.mixName);
+		});
+		return newArr;
+	};
 </script>
 
 <PlaylistWrapper
@@ -99,7 +107,7 @@
 			{defaultMessage}
 		</div>
 	{/if}
-	{#each savedMixes as savedMix, index}
+	{#each orderMixesAlphabetically(savedMixes) as savedMix, index}
 		<div class="row-wrapper" on:click={loadMix(savedMix)}>
 			<CollapsableSection expanded={false}>
 				<li class="list-header" slot="header">
@@ -112,7 +120,7 @@
 							Mix • {countMixVideos(savedMix)} video{countMixVideos(savedMix) > 1 ? 's' : ''}
 						</div>
 					</div>
-					<button class="delete-btn" on:click={removeMix(index)}>
+					<button class="delete-btn" on:click|stopPropagation={removeMix(index)}>
 						<i class="fa-solid fa-xmark" />
 					</button>
 				</li>
