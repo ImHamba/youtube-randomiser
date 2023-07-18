@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { shuffleArray } from '$lib/misc/util';
-	import { SvelteComponent, onMount } from 'svelte';
-	import type MixDisplay from './playlistDisplay/mixDisplay.svelte';
 	import { getCurrentVideoId, loadVideo } from '$lib/misc/playerUtil';
+	import { shuffleArray } from '$lib/misc/util';
+	import { onMount } from 'svelte';
+	import type MixDisplay from '../playlistDisplay/mixDisplay.svelte';
+	import ProgressSlider from './progressSlider.svelte';
 
 	export let player: any;
-	export let currentVideoID: string;
 	export let videoList: IVideoData[];
 	export let videoIndex: number;
 	export let mixDisplay: MixDisplay;
@@ -34,8 +34,6 @@
 			clearInterval(videoPausedInterval);
 		};
 	});
-
-	
 
 	const loadNextVideo = () => {
 		videoIndex = Math.min(videoList.length - 1, videoIndex + 1);
@@ -82,27 +80,30 @@
 </script>
 
 <div class="controls-container">
-	<button class="hover-highlight" on:click={loadPreviousVideo}>
-		<i class="fa-solid fa-backward-step" />
-	</button>
-	<button class="play-btn hover-highlight" on:click={unpauseVideo} class:hidden={!videoPaused}>
-		<i class="fa-solid fa-play" />
-	</button>
-	<button class="hover-highlight" on:click={pauseVideo} class:hidden={videoPaused}>
-		<i class="fa-solid fa-pause" />
-	</button>
-	<button class="hover-highlight" on:click={loadNextVideo}>
-		<i class="fa-solid fa-forward-step" />
-	</button>
-	<button class="hover-highlight" on:click={shuffleVideos}>
-		<i class="fa-solid fa-shuffle" />
-	</button>
-	<button class="hover-highlight" on:click={toggleLoopVideo} class:inactive={!loopVideo}>
-		<i class="fa-solid fa-repeat" />
-	</button>
-	<button class="hover-highlight">
-		<a href="./"><i class="fa-solid fa-plus" /></a>
-	</button>
+	<div class="btn-container">
+		<button class="hover-highlight" on:click={loadPreviousVideo}>
+			<i class="fa-solid fa-backward-step" />
+		</button>
+		<button class="play-btn hover-highlight" on:click={unpauseVideo} class:hidden={!videoPaused}>
+			<i class="fa-solid fa-play" />
+		</button>
+		<button class="hover-highlight" on:click={pauseVideo} class:hidden={videoPaused}>
+			<i class="fa-solid fa-pause" />
+		</button>
+		<button class="hover-highlight" on:click={loadNextVideo}>
+			<i class="fa-solid fa-forward-step" />
+		</button>
+		<button class="hover-highlight" on:click={shuffleVideos}>
+			<i class="fa-solid fa-shuffle" />
+		</button>
+		<button class="hover-highlight" on:click={toggleLoopVideo} class:inactive={!loopVideo}>
+			<i class="fa-solid fa-repeat" />
+		</button>
+		<button class="hover-highlight">
+			<a href="./"><i class="fa-solid fa-plus" /></a>
+		</button>
+	</div>
+	<ProgressSlider {player} />
 </div>
 
 <style lang="scss">
@@ -110,30 +111,40 @@
 		@import './src/app.scss';
 		@include glass-background;
 
-		min-height: 80px;
 		width: 100%;
-		// overflow: hidden;
+
 		display: flex;
-		flex-wrap: wrap;
-		gap: 3px;
+		flex-direction: column;
+		gap: 10px;
 		justify-content: center;
 		align-items: center;
 		border-radius: 25px 25px 5px 5px;
-		// border: 1px red solid;
 		margin-bottom: 5px;
 
-		button {
-			// min-width: 0;
-			height: 50px;
-			aspect-ratio: 1;
-			border-radius: 50%;
-			// border: 1px red solid;
-			font-size: 35px;
-		}
+		padding: 10px 30px;
+		box-sizing: border-box;
 
-		.play-btn {
-			i {
-				padding-left: 3px;
+		.btn-container {
+			width: 100%;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+			align-items: center;
+			gap: 3px;
+
+			button {
+				// min-width: 0;
+				height: 50px;
+				aspect-ratio: 1;
+				border-radius: 50%;
+				// border: 1px red solid;
+				font-size: 35px;
+			}
+
+			.play-btn {
+				i {
+					padding-left: 3px;
+				}
 			}
 		}
 	}

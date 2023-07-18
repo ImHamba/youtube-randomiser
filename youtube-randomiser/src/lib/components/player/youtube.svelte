@@ -8,6 +8,7 @@
 
 	onMount(() => {
 		function load() {
+			// @ts-ignore
 			player = new YT.Player(ytPlayerId, {
 				height: '100%',
 				width: '100%',
@@ -16,9 +17,11 @@
 			});
 		}
 
+		// @ts-ignore
 		if (window.YT) {
 			load();
 		} else {
+			// @ts-ignore
 			window.onYouTubeIframeAPIReady = load;
 		}
 	});

@@ -1,14 +1,14 @@
 <script lang="ts">
-	import PlayerControls from '$lib/components/playerControls.svelte';
+	import PlayerControls from '$lib/components/player/playerControls.svelte';
+	import Youtube from '$lib/components/player/youtube.svelte';
 	import MixDisplay from '$lib/components/playlistDisplay/mixDisplay.svelte';
-	import Youtube from '$lib/components/youtube.svelte';
-	import { arrayMoveElement, shuffleArray, sleep } from '$lib/misc/util';
+	import { shuffleArray } from '$lib/misc/util';
 	import { groupedVideoStore } from '$lib/store';
 
 	let videoList: IVideoData[] = [];
 	let videoListInitialised = false;
 	let videoIndex: number = 0;
-	let currentVideoID: string = '';
+	let initialVideoId: string;
 
 	let player: any = null;
 
@@ -38,7 +38,7 @@
 		if (!videoListInitialised) {
 			videoListInitialised = true;
 			videoList = shuffleArray(videoList);
-			currentVideoID = videoList[0]?.videoID;
+			initialVideoId = videoList[0]?.videoID || '';
 
 			if (videoList.length == 0) {
 				window.location.href = './';
@@ -57,7 +57,6 @@
 		<PlayerControls
 			bind:this={playerControls}
 			{player}
-			bind:currentVideoID
 			bind:videoList
 			bind:videoIndex
 			bind:mixDisplay
@@ -82,7 +81,7 @@
 	</div>
 
 	<div class="player-wrapper">
-		<Youtube initialVideoId={currentVideoID} bind:player />
+		<Youtube {initialVideoId} bind:player />
 	</div>
 </div>
 
