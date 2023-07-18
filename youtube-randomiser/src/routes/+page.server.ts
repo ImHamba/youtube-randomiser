@@ -11,8 +11,8 @@ export const actions = {
 		}
 
 		// get playlist details e.g. playlist name, thumbnail etc.
-		// const plDetails = await fetchPlaylistDetails(playlistID, etag);
-		const plDetails = await fetchPlaylistDetails(playlistID, '')
+		const plDetails = await fetchPlaylistDetails(playlistID, etag);
+		// const plDetails = await fetchPlaylistDetails(playlistID, '')
 
 		if (plDetails.status == 304) {
 			// playlist is unchanged according to etag, no need to fetch all data again
