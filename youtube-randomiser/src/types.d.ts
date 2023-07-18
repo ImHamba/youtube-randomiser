@@ -9,13 +9,27 @@ interface IPlaylistData {
 	playlistName: string;
 	playlistThumbnail: string;
 	playlistChannel: string;
+	playlistEtag: string;
+	playlistId: string;
 	videos: IVideoData[];
 }
 
-interface IPlaylistDataResponse {
-	success: boolean;
-	message: IPlaylistData;
-}
+type IPlaylistDataResponse =
+	| {
+			success: true;
+			status: 200;
+			message: IPlaylistData;
+	  }
+	| {
+			success: false;
+			status: 404;
+			message: null;
+	  }
+	| {
+			success: true;
+			status: 304;
+			message: null;
+	  };
 
 type IGroupedVideoData = Array<IVideoGroup>;
 

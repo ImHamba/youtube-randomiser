@@ -6,9 +6,9 @@
 	import { groupedVideoStore } from '$lib/store';
 
 	// return from form POST request is accessible through this special form prop
-	export let form: IPlaylistDataResponse;
+	// export let form: IPlaylistDataResponse;
 
-	let originalIDs: string[] = [];
+	// let originalIDs: string[] = [];
 
 	let groupedVideoData: IGroupedVideoData = [];
 	groupedVideoStore.subscribe((storeData) => {
@@ -17,15 +17,33 @@
 
 	let awaitingResponse = false;
 
-	const handleAddID: SubmitFunction = ({ formElement, formData, cancel, action }) => {
-		const ytMediaID = formData.get('ytMediaID')?.toString();
+	const handleAddID: SubmitFunction = ({ formData, cancel, action }) => {
+		const ytMediaID = formData.get('ytMediaID')?.toString() as string;
+
+		if (action.search == '?/getPlaylist') {
+			// check if playlist id has already been saved on this device
+			const savedPlaylistDataJson = localStorage.getItem(ytMediaID);
+
+			if (savedPlaylistDataJson != null) {
+				const savedPlaylistData: IPlaylistData = JSON.parse(savedPlaylistDataJson);
+
+				console.log('Found in localstorage:', ytMediaID);
+
+				// add playlist etag to playlist request
+				formData.set('etag', savedPlaylistData.playlistEtag);
+			}
+		}
 
 		// TODO: add cache fetching for previously fetched media id's. Only accept cached playlist id's that are less than 5 or 10 min old, incase playlist is updated
 		// TODO: remove old playlist id's from cache if it is old enough
 
 		// if the id has already been included, dont include it again
 		// if the id is invalid youtube video or playlist id, cancel request
-		if (ytMediaID == null || originalIDs.includes(ytMediaID) || inputInvalid) {
+		if (
+			ytMediaID == null ||
+			// || originalIDs.includes(ytMediaID)
+			inputInvalid
+		) {
 			console.log('request cancelled');
 			cancel();
 			// formElement.reset();
@@ -41,18 +59,43 @@
 			if (result.type === 'success' && result.data != null) {
 				if (result.data.success === true) {
 					// valid playlist or video id was found, update the video list
+					console.log('Valid media found');
 
 					if (action.search == '?/getVideo') {
 						const data: IVideoData = result.data?.message;
 						processVideoData(data);
 					} else if (action.search == '?/getPlaylist') {
-						const data: IPlaylistData = result.data?.message;
-						processPlaylistData(data);
+						const response = result.data as IPlaylistDataResponse;
+						let data: IPlaylistData;
+
+						console.log('Playlist found, status:', response.status);
+
+						if (response.status == 304) {
+							const savedPlaylistDataJson = localStorage.getItem(ytMediaID) as string;
+							data = JSON.parse(savedPlaylistDataJson);
+
+							console.log('Found in localstorage and unchanged on yt:', data.playlistId);
+
+							// set up playlist data in store
+							processPlaylistData(data);
+						} else if (response.status == 200) {
+							data = response.message;
+
+							// save playlist data to local storage
+							localStorage.setItem(data.playlistId, JSON.stringify(data));
+
+							console.log('Saving to localstorage:', data.playlistId);
+
+							// set up playlist data in store
+							processPlaylistData(data);
+						} else if (response.status == 404) {
+							return;
+						}
 					}
 
 					// formElement.reset();
 					input = ''; // trigger input validation reactive value
-					originalIDs.push(ytMediaID);
+					// originalIDs.push(ytMediaID);
 				} else {
 					// playlist or video id was invalid, prompt user to correct their input
 				}
@@ -104,7 +147,6 @@
 	$: inputIsPlaylist = validatePlaylistId(input);
 	$: inputIsVideo = validateVideoId(input);
 	$: inputInvalid = !(inputIsPlaylist || inputIsVideo);
-	$: console.log(input, inputInvalid, inputIsPlaylist, inputIsVideo);
 </script>
 
 <div class="wrapper">
