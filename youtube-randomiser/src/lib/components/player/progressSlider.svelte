@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { getVideoDuration, getCurrentVideoTime } from '$lib/misc/playerUtil';
 	import { onMount } from 'svelte';
 
 	export let player: any;
@@ -13,8 +12,6 @@
 	$: videoTimeMin = secToMin(videoTime);
 	$: videoDurationMin = secToMin(videoDuration);
 
-	$: console.log(videoTime);
-
 	const secToMin = (seconds: number) => {
 		const minutes = Math.floor(seconds / 60);
 		const extraSeconds = seconds % 60;
@@ -23,23 +20,30 @@
 
 	onMount(() => {
 		const playerTimeInterval = setInterval(() => {
-			videoTime = getCurrentVideoTime(player) || videoTime;
-			videoDuration = getVideoDuration(player) || videoDuration;
+			videoTime = player.getCurrentTime() || videoTime;
+			videoDuration = player.getDuration() || videoDuration;
 		}, 100);
 
 		return () => {
 			clearInterval(playerTimeInterval);
 		};
 	});
+
+	let slider: HTMLInputElement;
+	const handleTimeChange = () => {
+		player.seekTo(slider.value);
+	};
 </script>
 
 <div class="slider-wrapper">
 	<div class="time">{videoTimeMin}</div>
 	<input
+		bind:this={slider}
 		type="range"
 		min="0"
 		max={videoDuration}
 		bind:value={videoTime}
+		on:input={handleTimeChange}
 		class="slider"
 		id="myRange"
 		step="0.01"
@@ -51,6 +55,7 @@
 	.slider-wrapper {
 		width: 100%;
 		// height: 50px;
+		margin-bottom: 5px;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;

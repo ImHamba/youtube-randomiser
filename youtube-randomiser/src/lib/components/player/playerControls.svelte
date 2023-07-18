@@ -115,7 +115,7 @@
 
 		display: flex;
 		flex-direction: column;
-		gap: 10px;
+		gap: 15px;
 		justify-content: center;
 		align-items: center;
 		border-radius: 25px 25px 5px 5px;
