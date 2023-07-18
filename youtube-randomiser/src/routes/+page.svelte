@@ -326,7 +326,7 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		padding: 7% 0px 5%;
+		padding: 4% 0px 4%;
 		margin: 0;
 	}
 
