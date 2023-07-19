@@ -471,6 +471,10 @@
 				font-size: 0.9em;
 				outline: none;
 			}
+			
+			input::placeholder {
+				color: var(--grey-dark);
+			}
 
 			button {
 				width: 45px;
