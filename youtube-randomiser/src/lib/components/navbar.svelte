@@ -10,16 +10,17 @@
 	import { decodeJwt } from 'jose';
 
 	export let validLogin: boolean;
-	let userData: IUserData | {};
+	let userLoginData: { loggedIn: true; data: IUserData } | { loggedIn: false; data: {} };
 	$: {
 		if (validLogin) {
 			const token = getStoredToken();
 			if (token) {
-				userData = decodeJwt(token).userData as IUserData;
-				console.log(validLogin, userData);
+				const decodedUserData = decodeJwt(token).userData as IUserData;
+				userLoginData = { loggedIn: validLogin, data: decodedUserData };
+				console.log(validLogin, userLoginData);
 			}
 		} else {
-			userData = {};
+			userLoginData = { loggedIn: false, data: {} };
 		}
 	}
 
@@ -87,7 +88,7 @@
 <nav class="navbar">
 	<h2><a href="./">Youtube Randomiser</a></h2>
 	<i class="fa-solid fa-shuffle" />
-	{#if !validLogin}
+	{#if !userLoginData.loggedIn}
 		<div class="auth">
 			<span><button on:click={handleOpenSignUp}>Sign up</button></span>
 			<span><button on:click={handleOpenSignIn}>Sign in</button></span>
@@ -116,7 +117,7 @@
 		<div class="auth">
 			<span class="auth-item">
 				<i class="fa-regular fa-circle-user" />
-				Welcome {userData.email}
+				Welcome {userLoginData.data.email}
 			</span>
 			<span class="auth-item">
 				<button on:click={handleSignOut}>Sign out</button>
