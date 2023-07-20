@@ -1,6 +1,5 @@
-import { browser } from '$app/environment';
-import { tokenLSKey, validateToken } from '$lib/misc/userAuthenticationPublic.js';
+import { validateToken } from '$lib/misc/userAuthenticationPublic.js';
 
-export function load() {
-	return validateToken();
-}
+export const load = async () => {
+	return { validLogin: await validateToken() };
+};

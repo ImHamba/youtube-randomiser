@@ -2,12 +2,13 @@
 	import Navbar from '$lib/components/navbar.svelte';
 	import '../app.css';
 
-	export let data: {loggedIn: boolean, userData: any};
+	export let data;
+	const { validLogin } = data;
 </script>
 
 <div class="background1">
 	<div class="background2">
-		<Navbar loadData={data} />
+		<Navbar {validLogin} />
 		<slot />
 	</div>
 </div>

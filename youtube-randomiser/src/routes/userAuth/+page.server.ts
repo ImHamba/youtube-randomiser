@@ -55,7 +55,7 @@ export const actions: Actions = {
 
 		// if the email exists and password hashes match, generate a token and return it to the user
 		if (userByEmail.passwordHash === submittedPasswordHash) {
-			const userToken = generateToken(userByEmail.email);
+			const userToken = await generateToken({ email: userByEmail.email });
 			return { status: 201, message: { token: userToken } };
 		}
 
@@ -74,7 +74,7 @@ export const actions: Actions = {
 		}
 
 		// if user submitted a token, use that to verify login
-		const tokenIsValid = verifyTokenSignature(token);
+		const tokenIsValid = await verifyTokenSignature(token);
 		if (tokenIsValid) {
 			return { status: 201 };
 		} else {

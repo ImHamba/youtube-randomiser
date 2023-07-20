@@ -1,10 +1,27 @@
 <script lang="ts">
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import RegisterLoginModal from './userAccess/registerLoginModal.svelte';
-	import { tokenLSKey, validateToken } from '$lib/misc/userAuthenticationPublic';
+	import {
+		deleteStoredToken,
+		getStoredToken,
+		setStoredToken,
+		validateToken
+	} from '$lib/misc/userAuthenticationPublic';
+	import { decodeJwt } from 'jose';
 
-	const loggedOutUserData = { loggedIn: false, userData: {} };
-	export let loadData: { loggedIn: boolean; userData: any } = loggedOutUserData;
+	export let validLogin: boolean;
+	let userData: IUserData | {};
+	$: {
+		if (validLogin) {
+			const token = getStoredToken();
+			if (token) {
+				userData = decodeJwt(token).userData as IUserData;
+				console.log(validLogin, userData);
+			}
+		} else {
+			userData = {};
+		}
+	}
 
 	let signUpModalVisible = false;
 	let signInModalVisible = false;
@@ -24,8 +41,6 @@
 
 	const handleSignInByEmailPasswordRequest: SubmitFunction = () => {
 		return async ({ result }) => {
-			signInModalVisible = false;
-
 			// early return if any response errors
 			if (result.type !== 'success' || result.data == null) {
 				return;
@@ -45,10 +60,14 @@
 			else if (result.data.status == 201) {
 				const newToken = result.data.message.token;
 				if (newToken) {
-					localStorage.setItem(tokenLSKey, newToken);
+					setStoredToken(newToken);
 				}
+
 				// validate the login
-				loadData = validateToken();
+				validLogin = await validateToken();
+
+				// close the modal
+				signInModalVisible = false;
 				return;
 			}
 
@@ -60,15 +79,15 @@
 	};
 
 	const handleSignOut = () => {
-		localStorage.removeItem(tokenLSKey);
-		loadData = loggedOutUserData;
+		deleteStoredToken();
+		validLogin = false;
 	};
 </script>
 
 <nav class="navbar">
 	<h2><a href="./">Youtube Randomiser</a></h2>
 	<i class="fa-solid fa-shuffle" />
-	{#if !loadData.loggedIn}
+	{#if !validLogin}
 		<div class="auth">
 			<span><button on:click={handleOpenSignUp}>Sign up</button></span>
 			<span><button on:click={handleOpenSignIn}>Sign in</button></span>
@@ -97,7 +116,7 @@
 		<div class="auth">
 			<span class="auth-item">
 				<i class="fa-regular fa-circle-user" />
-				Welcome {loadData.userData.username}
+				Welcome {userData.email}
 			</span>
 			<span class="auth-item">
 				<button on:click={handleSignOut}>Sign out</button>

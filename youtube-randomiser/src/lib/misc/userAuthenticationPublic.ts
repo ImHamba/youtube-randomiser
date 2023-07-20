@@ -1,40 +1,27 @@
 import { browser } from '$app/environment';
 
-export const tokenLSKey = 'jwtToken';
-
-export const validateToken = () => {
+export const validateToken = async (): Promise<boolean> => {
 	let token: string | null = null;
-
-	const notLoggedIn = {
-		loggedIn: false,
-		userData: {}
-	};
 
 	// dont attempt to access local storage if not in browser
 	if (!browser) {
-		return notLoggedIn;
+		return false;
 	}
-
 	// check if there is a token stored
-	token = localStorage.getItem(tokenLSKey);
+	token = getStoredToken();
 
 	if (!token) {
-		return notLoggedIn;
+		return false;
 	}
 
 	// if there is a stored token, try to sign in with it
-	const tokenIsValid = validateTokenWithServer(token);
+	const tokenIsValid = await validateTokenWithServer(token);
 
 	if (!tokenIsValid) {
-		return notLoggedIn;
+		return false;
 	}
 
-	return {
-		loggedIn: true,
-		userData: {
-			username: token.slice(0, -5)
-		}
-	};
+	return true;
 };
 
 const validateTokenWithServer = async (token: string) => {
@@ -50,4 +37,19 @@ const validateTokenWithServer = async (token: string) => {
 	}
 
 	return true;
+};
+
+const tokenLSKey = 'jwtToken';
+export const getStoredToken = () => {
+	// check if there is a token stored
+	return localStorage.getItem(tokenLSKey);
+};
+
+export const setStoredToken = (newToken: string) => {
+	// check if there is a token stored
+	return localStorage.setItem(tokenLSKey, newToken);
+};
+
+export const deleteStoredToken = () => {
+	localStorage.removeItem(tokenLSKey);
 };

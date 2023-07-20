@@ -4,13 +4,13 @@ import { json, type RequestEvent } from '@sveltejs/kit';
 export const POST = async (RequestEvent: RequestEvent) => {
 	const data = await RequestEvent.request.json();
 	const token: string | null = data.token || null;
-	console.log(token);
+	// console.log(token);
 
 	if (!token) {
 		return json('Invalid request, no token provided.', { status: 400 });
 	}
 
-	const tokenIsValid = verifyTokenSignature(token);
+	const tokenIsValid = await verifyTokenSignature(token);
 
 	if (tokenIsValid) {
 		return json('Token valid.', { status: 201 });

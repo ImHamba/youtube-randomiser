@@ -41,3 +41,7 @@ interface IMix {
 	mixName: string;
 	mixData: IGroupedVideoData;
 }
+
+interface IUserData {
+	email: string;
+}
