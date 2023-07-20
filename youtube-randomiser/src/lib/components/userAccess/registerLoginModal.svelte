@@ -1,22 +1,37 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
+	import type { SubmitFunction } from '@sveltejs/kit';
 	import Modal from '../modal.svelte';
 
 	export let visible: boolean;
+
+	export let title = '';
+	export let subtitle = '';
+	export let buttonText = '';
+	export let bottomMethodText = '';
+	export let formAction: string;
+
+	export let handleRequest: SubmitFunction;
 </script>
 
 <div class="modal-wrapper" class:hidden={!visible}>
 	<Modal bind:visible>
 		<div class="modal-contents">
 			<div>
-				<h2>Sign Up</h2>
-				<h4>to save your mixes</h4>
+				<h2>{title}</h2>
+				<h4>{subtitle}</h4>
 			</div>
-			<form class="account-input-section">
+			<form
+				class="account-input-section"
+				method="POST"
+				action={formAction}
+				use:enhance={handleRequest}
+			>
 				<div class="account-input-row">
 					<span class="account-input-label">Email Address</span>
 					<span class="account-input">
 						<i class="fa-regular fa-envelope" />
-						<input />
+						<input name="email" />
 					</span>
 				</div>
 				<!-- <div class="account-input-row">
@@ -30,15 +45,17 @@
 					<span class="account-input-label">Password</span>
 					<span class="account-input">
 						<i class="fa-solid fa-lock" />
-						<input type="password" />
+						<input name="password" type="password" />
 					</span>
 				</div>
-				<button class="register-btn hover-highlight"><h4>Register</h4></button>
+				<button class="register-btn hover-highlight">
+					<h4>{buttonText}</h4>
+				</button>
 			</form>
 
 			<div class="other-methods">
 				<span class="divider" />
-				<span>Or sign up with another method</span>
+				<span>{bottomMethodText}</span>
 				<div class="other-method-btn-wrapper">
 					<button class="other-method-btn hover-highlight">
 						<i class="fa-brands fa-google" />

@@ -1,23 +1,109 @@
 <script lang="ts">
-	import Modal from './modal.svelte';
-	import SignUpModal from './userAccess/signUpModal.svelte';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import RegisterLoginModal from './userAccess/registerLoginModal.svelte';
+	import { tokenLSKey, validateToken } from '$lib/misc/userAuthenticationPublic';
+
+	const loggedOutUserData = { loggedIn: false, userData: {} };
+	export let loadData: { loggedIn: boolean; userData: any } = loggedOutUserData;
+
+	let signUpModalVisible = false;
+	let signInModalVisible = false;
 
 	const handleOpenSignUp = () => {
 		signUpModalVisible = true;
 	};
-	const handleOpenSignIn = () => {};
+	const handleOpenSignIn = () => {
+		signInModalVisible = true;
+	};
 
-	let signUpModalVisible = false;
+	const handleSignUpRequest: SubmitFunction = () => {
+		return async () => {
+			signUpModalVisible = false;
+		};
+	};
+
+	const handleSignInByEmailPasswordRequest: SubmitFunction = () => {
+		return async ({ result }) => {
+			signInModalVisible = false;
+
+			// early return if any response errors
+			if (result.type !== 'success' || result.data == null) {
+				return;
+			}
+
+			// invalid login credentials
+			if (result.data.status == 401) {
+				return;
+			}
+
+			// invalid sign in request (missing data)
+			else if (result.data.status == 400) {
+				return;
+			}
+
+			// valid login, save the token
+			else if (result.data.status == 201) {
+				const newToken = result.data.message.token;
+				if (newToken) {
+					localStorage.setItem(tokenLSKey, newToken);
+				}
+				// validate the login
+				loadData = validateToken();
+				return;
+			}
+
+			// any other status code
+			else {
+				return;
+			}
+		};
+	};
+
+	const handleSignOut = () => {
+		localStorage.removeItem(tokenLSKey);
+		loadData = loggedOutUserData;
+	};
 </script>
 
 <nav class="navbar">
 	<h2><a href="./">Youtube Randomiser</a></h2>
 	<i class="fa-solid fa-shuffle" />
-	<div class="sign-up-in">
-		<span><button on:click={handleOpenSignUp}>Sign up</button></span>
-		<span><button on:click={handleOpenSignIn}>Sign in</button></span>
-	</div>
-	<SignUpModal bind:visible={signUpModalVisible} />
+	{#if !loadData.loggedIn}
+		<div class="auth">
+			<span><button on:click={handleOpenSignUp}>Sign up</button></span>
+			<span><button on:click={handleOpenSignIn}>Sign in</button></span>
+		</div>
+
+		<RegisterLoginModal
+			bind:visible={signUpModalVisible}
+			title="Sign Up"
+			subtitle="to save your mixes"
+			buttonText="Register"
+			bottomMethodText="Or sign up with a different method"
+			formAction="/userAuth?/createNewUser"
+			handleRequest={handleSignUpRequest}
+		/>
+
+		<RegisterLoginModal
+			bind:visible={signInModalVisible}
+			title="Sign In"
+			subtitle="to access your saved mixes"
+			buttonText="Sign In"
+			bottomMethodText="Or sign in with a different method"
+			formAction="/userAuth?/signInUserByEmailPassword"
+			handleRequest={handleSignInByEmailPasswordRequest}
+		/>
+	{:else}
+		<div class="auth">
+			<span class="auth-item">
+				<i class="fa-regular fa-circle-user" />
+				Welcome {loadData.userData.username}
+			</span>
+			<span class="auth-item">
+				<button on:click={handleSignOut}>Sign out</button>
+			</span>
+		</div>
+	{/if}
 </nav>
 
 <style lang="scss">
@@ -48,20 +134,26 @@
 			font-size: 2em;
 		}
 
-		.sign-up-in {
+		.auth {
 			position: absolute;
 			right: 40px;
 			display: flex;
+			align-items: center;
 			gap: 20px;
 
 			span button {
 				padding: 0px;
 				margin: 0px;
 			}
-		}
-	}
 
-	.logo {
-		height: 100%;
+			.auth-item {
+				display: flex;
+				align-items: center;
+				i {
+					font-size: 25px;
+					margin-right: 10px;
+				}
+			}
+		}
 	}
 </style>

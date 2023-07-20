@@ -1,11 +1,13 @@
 <script lang="ts">
 	import Navbar from '$lib/components/navbar.svelte';
 	import '../app.css';
+
+	export let data: {loggedIn: boolean, userData: any};
 </script>
 
 <div class="background1">
 	<div class="background2">
-		<Navbar />
+		<Navbar loadData={data} />
 		<slot />
 	</div>
 </div>
@@ -30,7 +32,7 @@
 				$gradients: append(
 					$gradients,
 					radial-gradient(
-						circle 300px at percentage(calc(($i*2 + 1) / 10)) percentage(calc(($j*2 + 2) / 10)),
+						circle 300px at percentage(calc(($i * 2 + 1) / 10)) percentage(calc(($j * 2 + 2) / 10)),
 						rgba(random($range) + $start, random($range) + $start, random($range) + $start, 0.25),
 						transparent
 					),

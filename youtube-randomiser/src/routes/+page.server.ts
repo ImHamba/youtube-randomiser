@@ -1,5 +1,7 @@
 import { SECRET_YT } from '$env/static/private';
-export const actions = {
+import type { Actions } from '@sveltejs/kit';
+
+export const actions: Actions = {
 	getPlaylist: async ({ request }): Promise<IPlaylistDataResponse> => {
 		const data = await request.formData();
 		const playlistID = data.get('ytMediaID')?.toString();
@@ -17,7 +19,6 @@ export const actions = {
 		if (plDetails.status == 304) {
 			// playlist is unchanged according to etag, no need to fetch all data again
 			return { success: true, status: 304, message: null };
-
 		} else if (plDetails.status == 200) {
 			// get first 50 videos
 			let plResponse = await fetchPlaylistItems(playlistID);

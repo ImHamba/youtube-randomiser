@@ -23,7 +23,7 @@
 	let savedPlaylistLocalstorageKey = 'previouslyFetchedPlaylists';
 
 	const handleAddID: SubmitFunction = ({ formData, cancel, action }) => {
-		const ytMediaID = formData.get('ytMediaID')?.toString() as string;
+		const ytMediaID = formData.get('ytMediaID') as string;
 
 		if (action.search == '?/getPlaylist') {
 			// check if playlist id has already been saved on this device
@@ -218,7 +218,7 @@
 	<h3>Mix Creator</h3>
 	<div class="video-list">
 		<div class="playlist-input">
-			<form use:enhance={handleAddID} method="POST" action="?/getVideo">
+			<form use:enhance={handleAddID} method="POST">
 				<!-- Buttons swap in and out depending on whether user input is invalid, video ID or playlist ID -->
 				{#if !awaitingResponse}
 					<button
