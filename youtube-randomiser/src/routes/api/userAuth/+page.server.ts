@@ -1,11 +1,11 @@
 import { tokenCookieName } from '$lib/misc/localKeys';
+import { validateEmail } from '$lib/misc/util';
 import { prisma } from '$lib/server/prisma';
 import {
 	authError,
 	generateToken,
 	hashPassword,
-	validatePassword,
-	verifyTokenSignature
+	validatePassword
 } from '$lib/server/userAuthentication';
 import { fail, type Actions } from '@sveltejs/kit';
 
@@ -19,6 +19,10 @@ export const actions: Actions = {
 
 		if (!email || !password) {
 			return fail(400, { message: 'Invalid sign in request.' });
+		}
+
+		if (!validateEmail(email as string)) {
+			return fail(400, { message: 'Invalid email address in sign in request.' });
 		}
 
 		const passwordHash = await hashPassword(password as string);
