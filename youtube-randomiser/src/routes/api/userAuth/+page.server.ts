@@ -1,25 +1,33 @@
 import { tokenCookieName } from '$lib/misc/localKeys';
 import { prisma } from '$lib/server/prisma';
-import { authError, generateToken, verifyTokenSignature } from '$lib/server/userAuthentication';
+import {
+	authError,
+	generateToken,
+	hashPassword,
+	validatePassword,
+	verifyTokenSignature
+} from '$lib/server/userAuthentication';
 import { fail, type Actions } from '@sveltejs/kit';
 
 export const actions: Actions = {
 	createNewUser: async ({ cookies, request }) => {
 		const data = await request.formData();
 		const email = data.get('email');
-		const passwordHash = data.get('password');
+		const password = data.get('password');
 
 		// console.log(email);
 
-		if (!(email && passwordHash)) {
+		if (!email || !password) {
 			return fail(400, { message: 'Invalid sign in request.' });
 		}
+
+		const passwordHash = await hashPassword(password as string);
 
 		try {
 			await prisma.user.create({
 				data: {
 					email: email as string,
-					passwordHash: passwordHash as string
+					passwordHash: passwordHash
 				}
 			});
 		} catch (err) {
@@ -38,10 +46,10 @@ export const actions: Actions = {
 	signInUserByEmailPassword: async ({ request, cookies }) => {
 		const data = await request.formData();
 		const submittedEmail = data.get('email') as string;
-		const submittedPasswordHash = data.get('password') as string;
+		const submittedPassword = data.get('password') as string;
 
 		// if a email/password combination wasnt provided, invalid request
-		if (!(submittedEmail && submittedPasswordHash)) {
+		if (!(submittedEmail && submittedPassword)) {
 			return fail(400, { message: 'Invalid sign in request.' });
 		}
 
@@ -58,7 +66,8 @@ export const actions: Actions = {
 		}
 
 		// if the email exists and password hashes match, generate a token and return it to the user
-		if (userByEmail.passwordHash === submittedPasswordHash) {
+		const passwordsMatch = await validatePassword(submittedPassword, userByEmail.passwordHash);
+		if (passwordsMatch) {
 			const userToken = await generateToken({ email: userByEmail.email });
 			cookies.set(tokenCookieName, userToken, { path: '/' });
 			return { status: 201 };

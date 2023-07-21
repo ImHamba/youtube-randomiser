@@ -232,6 +232,7 @@
 </script>
 
 <div class="wrapper">
+	<button on:click={testhash}>test</button>
 	<h3>Mix Creator</h3>
 	<div class="video-list">
 		<div class="playlist-input">

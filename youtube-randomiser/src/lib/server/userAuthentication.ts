@@ -1,7 +1,11 @@
 import { JWT_SECRET } from '$env/static/private';
 import { tokenCookieName } from '$lib/misc/localKeys';
 import { fail, type Cookies, json } from '@sveltejs/kit';
+import bcryptjs from 'bcryptjs';
+const { compare, hash } = bcryptjs;
 import { SignJWT, decodeJwt, jwtVerify } from 'jose';
+
+export const hashingSaltRounds = 13;
 
 export const authError = fail(401, {
 	message: 'Email/password combination does not exist or token is invalid.'
@@ -75,4 +79,14 @@ export const validateToken = async (
 	}
 
 	return { valid: true, response: token };
+};
+
+export const hashPassword = async (password: string) => {
+	const passwordHash = await hash(password, hashingSaltRounds);
+	return passwordHash;
+};
+
+export const validatePassword = async (submittedPassword: string, storedPasswordhash: string) => {
+	const passwordsMatch = await compare(submittedPassword, storedPasswordhash);
+	return passwordsMatch;
 };
