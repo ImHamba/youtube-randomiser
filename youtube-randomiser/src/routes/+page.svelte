@@ -5,11 +5,12 @@
 	import GroupedPlaylistDisplay from '$lib/components/playlistDisplay/groupedPlaylistDisplay.svelte';
 	import SavedMixesDisplay from '$lib/components/playlistDisplay/savedMixesDisplay.svelte';
 	import { clickOutside } from '$lib/misc/clickOutside';
-	import { savedPlaylistLSKey } from '$lib/misc/localKeys.js';
+	import { currentMixLSKey, savedPlaylistLSKey } from '$lib/misc/localKeys.js';
 	import { checkForIdenticalMix } from '$lib/misc/mixesUtil.js';
 	import { restringify } from '$lib/misc/util';
 	import { groupedVideoStore, savedLocalMixesStore, savedUserMixesStore } from '$lib/store';
 	import { get } from 'svelte/store';
+	import { browser } from '$app/environment';
 
 	// page load data
 	export let data;
@@ -22,6 +23,10 @@
 	let groupedVideoData: IGroupedVideoData = [];
 	groupedVideoStore.subscribe((storeData) => {
 		groupedVideoData = storeData;
+
+		if (browser) {
+			localStorage.setItem(currentMixLSKey, JSON.stringify(groupedVideoData));
+		}
 	});
 
 	let awaitingResponse = false;

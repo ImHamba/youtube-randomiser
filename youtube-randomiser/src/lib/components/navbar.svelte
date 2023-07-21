@@ -2,6 +2,7 @@
 	import { invalidateAll } from '$app/navigation';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import RegisterLoginModal from './userAccess/registerLoginModal.svelte';
+	import { groupedVideoStore } from '$lib/store';
 
 	export let loginData: ILoginData;
 
@@ -60,6 +61,11 @@
 	const handleSignOut = async () => {
 		// console.log('Deleting cookie');
 		await fetch('/api/userAuth/signOut', { method: 'POST', credentials: 'include' });
+
+		// clear the current mix for user privacy upon logout
+		groupedVideoStore.set([]);
+
+		// reload page to update login state
 		invalidateAll();
 	};
 </script>

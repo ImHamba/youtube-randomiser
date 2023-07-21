@@ -44,3 +44,8 @@ export const checkUnorderedEquality = <T>(arr1: Array<T>, arr2: Array<T>) => {
 		return arr2.some((e2) => JSON.stringify(e2) == JSON.stringify(e1));
 	});
 };
+
+export const validateEmail = (email: string) => {
+	const re = /^\S+@\S+\.\S+$/;
+	return re.test(email);
+};

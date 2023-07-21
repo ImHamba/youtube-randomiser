@@ -60,12 +60,6 @@
 					<button class="other-method-btn hover-highlight">
 						<i class="fa-brands fa-google" />
 					</button>
-					<!-- <button class=" other-method-btn hover-highlight">
-						<i class="fa-brands fa-google" />
-					</button>
-					<button class="other-method-btn hover-highlight">
-						<i class="fa-brands fa-google" />
-					</button> -->
 				</div>
 			</div>
 		</div>
