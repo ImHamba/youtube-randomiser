@@ -1,4 +1,6 @@
-import { writable } from 'svelte/store';
+import { browser } from '$app/environment';
+import { writable, type Writable } from 'svelte/store';
+import { savedLocalMixesLSKey } from './misc/localKeys';
 
 export const videoIDStore = writable<IVideoData[]>([
 	{
@@ -11,3 +13,14 @@ export const videoIDStore = writable<IVideoData[]>([
 ]);
 
 export const groupedVideoStore = writable<IGroupedVideoData>([]);
+
+// attempt to load saved local mixes from local storage and initialise local saved mix store with them
+let savedLocalMixesJson: string | null = null;
+if (browser) {
+	savedLocalMixesJson = localStorage.getItem(savedLocalMixesLSKey);
+}
+export const savedLocalMixesStore: Writable<IMix[]> = writable(
+	savedLocalMixesJson == null ? [] : JSON.parse(savedLocalMixesJson)
+);
+
+export const savedUserMixesStore: Writable<IUserMix[]> = writable([]);

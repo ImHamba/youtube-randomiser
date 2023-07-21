@@ -1,9 +1,10 @@
+import { tokenCookieName } from '$lib/misc/localKeys';
 import { prisma } from '$lib/server/prisma';
 import { authError, generateToken, verifyTokenSignature } from '$lib/server/userAuthentication';
 import { fail, type Actions } from '@sveltejs/kit';
 
 export const actions: Actions = {
-	createNewUser: async ({ request }) => {
+	createNewUser: async ({ cookies, request }) => {
 		const data = await request.formData();
 		const email = data.get('email');
 		const passwordHash = data.get('password');
@@ -26,12 +27,15 @@ export const actions: Actions = {
 			return fail(500, { message: 'Could not create new user.' });
 		}
 
+		const userToken = await generateToken({ email: email as string });
+		cookies.set(tokenCookieName, userToken, { path: '/' });
+
 		return {
 			status: 201
 		};
 	},
 
-	signInUserByEmailPassword: async ({ request }) => {
+	signInUserByEmailPassword: async ({ request, cookies }) => {
 		const data = await request.formData();
 		const submittedEmail = data.get('email') as string;
 		const submittedPasswordHash = data.get('password') as string;
@@ -56,28 +60,12 @@ export const actions: Actions = {
 		// if the email exists and password hashes match, generate a token and return it to the user
 		if (userByEmail.passwordHash === submittedPasswordHash) {
 			const userToken = await generateToken({ email: userByEmail.email });
-			return { status: 201, message: { token: userToken } };
+			cookies.set(tokenCookieName, userToken, { path: '/' });
+			return { status: 201 };
 		}
 
 		// if passwords dont match, return auth error
 		else {
-			return authError;
-		}
-	},
-
-	signInUserByToken: async ({ request }) => {
-		const data = await request.formData();
-		const token = data.get('token') as string;
-
-		if (!token) {
-			return fail(400, { message: 'Invalid sign in request.' });
-		}
-
-		// if user submitted a token, use that to verify login
-		const tokenIsValid = await verifyTokenSignature(token);
-		if (tokenIsValid) {
-			return { status: 201 };
-		} else {
 			return authError;
 		}
 	}

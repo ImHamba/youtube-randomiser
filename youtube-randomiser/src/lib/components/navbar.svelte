@@ -1,28 +1,9 @@
 <script lang="ts">
+	import { invalidateAll } from '$app/navigation';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import RegisterLoginModal from './userAccess/registerLoginModal.svelte';
-	import {
-		deleteStoredToken,
-		getStoredToken,
-		setStoredToken,
-		validateToken
-	} from '$lib/misc/userAuthenticationPublic';
-	import { decodeJwt } from 'jose';
 
-	export let validLogin: boolean;
-	let userLoginData: { loggedIn: true; data: IUserData } | { loggedIn: false; data: {} };
-	$: {
-		if (validLogin) {
-			const token = getStoredToken();
-			if (token) {
-				const decodedUserData = decodeJwt(token).userData as IUserData;
-				userLoginData = { loggedIn: validLogin, data: decodedUserData };
-				console.log(validLogin, userLoginData);
-			}
-		} else {
-			userLoginData = { loggedIn: false, data: {} };
-		}
-	}
+	export let loginData: ILoginData;
 
 	let signUpModalVisible = false;
 	let signInModalVisible = false;
@@ -36,6 +17,9 @@
 
 	const handleSignUpRequest: SubmitFunction = () => {
 		return async () => {
+			// reload page to validate token cookie
+			invalidateAll();
+
 			signUpModalVisible = false;
 		};
 	};
@@ -59,17 +43,11 @@
 
 			// valid login, save the token
 			else if (result.data.status == 201) {
-				const newToken = result.data.message.token;
-				if (newToken) {
-					setStoredToken(newToken);
-				}
-
-				// validate the login
-				validLogin = await validateToken();
+				// reload page to validate token cookie
+				invalidateAll();
 
 				// close the modal
 				signInModalVisible = false;
-				return;
 			}
 
 			// any other status code
@@ -79,16 +57,17 @@
 		};
 	};
 
-	const handleSignOut = () => {
-		deleteStoredToken();
-		validLogin = false;
+	const handleSignOut = async () => {
+		// console.log('Deleting cookie');
+		await fetch('/api/userAuth/signOut', { method: 'POST', credentials: 'include' });
+		invalidateAll();
 	};
 </script>
 
 <nav class="navbar">
 	<h2><a href="./">Youtube Randomiser</a></h2>
 	<i class="fa-solid fa-shuffle" />
-	{#if !userLoginData.loggedIn}
+	{#if !loginData.valid}
 		<div class="auth">
 			<span><button on:click={handleOpenSignUp}>Sign up</button></span>
 			<span><button on:click={handleOpenSignIn}>Sign in</button></span>
@@ -100,7 +79,7 @@
 			subtitle="to save your mixes"
 			buttonText="Register"
 			bottomMethodText="Or sign up with a different method"
-			formAction="/userAuth?/createNewUser"
+			formAction="/api/userAuth?/createNewUser"
 			handleRequest={handleSignUpRequest}
 		/>
 
@@ -110,14 +89,14 @@
 			subtitle="to access your saved mixes"
 			buttonText="Sign In"
 			bottomMethodText="Or sign in with a different method"
-			formAction="/userAuth?/signInUserByEmailPassword"
+			formAction="/api/userAuth?/signInUserByEmailPassword"
 			handleRequest={handleSignInByEmailPasswordRequest}
 		/>
 	{:else}
 		<div class="auth">
 			<span class="auth-item">
 				<i class="fa-regular fa-circle-user" />
-				Welcome {userLoginData.data.email}
+				Welcome {loginData.userData.email}
 			</span>
 			<span class="auth-item">
 				<button on:click={handleSignOut}>Sign out</button>

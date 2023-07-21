@@ -42,6 +42,18 @@ interface IMix {
 	mixData: IGroupedVideoData;
 }
 
-interface IUserData {
-	email: string;
+interface IUserMix {
+	mixId: number;
+	mixName: string;
+	mixData: IGroupedVideoData;
 }
+
+interface IServerUserData {
+	email: string;
+	userId: number;
+	passwordHash: string;
+}
+
+type IPublicUserData = Pick<IServerUserData, 'email'>;
+
+type ILoginData = { valid: false; userData: null } | { valid: true; userData: IPublicUserData };

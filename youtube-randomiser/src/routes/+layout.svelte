@@ -3,12 +3,15 @@
 	import '../app.css';
 
 	export let data;
-	const { validLogin } = data;
+	let loginData: ILoginData;
+	$: {
+		loginData = data.loginData;
+	}
 </script>
 
 <div class="background1">
 	<div class="background2">
-		<Navbar {validLogin} />
+		<Navbar {loginData} />
 		<slot />
 	</div>
 </div>

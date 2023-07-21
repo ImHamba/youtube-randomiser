@@ -1,43 +1,45 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import { writable, type Writable } from 'svelte/store';
+	import { savedLocalMixesLSKey } from '$lib/misc/localKeys';
+	import { groupedVideoStore, savedLocalMixesStore, savedUserMixesStore } from '$lib/store';
+	import { get, type Writable } from 'svelte/store';
 	import CollapsableSection from '../collapsableSection.svelte';
 	import PlaylistWrapper from './playlistWrapper.svelte';
-	import { groupedVideoStore } from '$lib/store';
-
-	export let savedMixesStore: Writable<IMix[]> | null;
-	export let savedMixesKey: string;
+	import { invalidateAll } from '$app/navigation';
 
 	let defaultMessage = 'No saved mixes.';
 
-	let savedMixes: IMix[] = [];
-
-	function localStorageStore(key: string, initial: IMix[]) {
-		let value;
-
-		// only access local storage in the browser
-		if (browser) {
-			value = localStorage.getItem(key);
-			const store: Writable<IMix[]> = writable(value == null ? initial : JSON.parse(value));
-
-			store.subscribe((storeData) => {
-				// when store data is updated, write it to local storage
-				localStorage.setItem(key, JSON.stringify(storeData));
-
-				// also updated saved mixes variable
-				savedMixes = storeData;
-			});
-
-			return store;
+	export let loginData: ILoginData;
+	let mixesToDisplay: IMix[];
+	// update displayed mixes when login state changes
+	$: {
+		if (!loginData.valid) {
+			mixesToDisplay = get(savedLocalMixesStore);
 		} else {
-			return null;
+			mixesToDisplay = get(savedUserMixesStore);
 		}
 	}
 
-	// only access local storage in the browser
-	if (browser) {
-		savedMixesStore = localStorageStore(savedMixesKey, []);
-	}
+	// subscribe to any changes in the saved local mixes store
+	savedLocalMixesStore.subscribe((storeData) => {
+		if (browser) {
+			// when store data is updated, write it to local storage
+			localStorage.setItem(savedLocalMixesLSKey, JSON.stringify(storeData));
+		}
+
+		// update displayed mixes when store updates
+		if (!loginData.valid) {
+			mixesToDisplay = storeData;
+		}
+	});
+
+	// subscribe to any changes in the saved user mixes store
+	savedUserMixesStore.subscribe((storeData) => {
+		// update displayed mixes when store updates
+		if (loginData.valid) {
+			mixesToDisplay = storeData;
+		}
+	});
 
 	const getMixThumbnail = (mix: IMix) => {
 		if (mix.mixData[0].isPlayList) {
@@ -77,10 +79,20 @@
 		}
 	};
 
-	const removeMix = (mixIndex: number) => () => {
-		savedMixesStore?.update((currentData) => {
-			return currentData.slice(0, mixIndex).concat(currentData.slice(mixIndex + 1));
-		});
+	const removeMix = (mixIndex: number) => async () => {
+		// if no user logged in, remove local mix by index
+		if (!loginData.valid) {
+			savedLocalMixesStore.update((currentData) => {
+				return currentData.slice(0, mixIndex).concat(currentData.slice(mixIndex + 1));
+			});
+		}
+
+		// if user logged in, send request to server to delete from account by mix id
+		else {
+			const mixIdToDelete = get(savedUserMixesStore)[mixIndex].mixId;
+			await fetch('/api/mixes', { method: 'DELETE', body: JSON.stringify(mixIdToDelete) });
+			invalidateAll();
+		}
 	};
 
 	const loadMix = (savedMix: IMix) => () => {
@@ -99,15 +111,17 @@
 <PlaylistWrapper
 	--scrollbar-margin-btm="15px"
 	--scrollbar-margin-top="15px"
-	heading="Saved Mixes"
-	permanentScrollTrack={savedMixes.length > 0}
+	heading={`${loginData.valid ? 'Your' : 'Local'} Saved Mixes`}
+	permanentScrollTrack={mixesToDisplay.length > 0}
 >
-	{#if savedMixes.length == 0}
+	{#if mixesToDisplay.length == 0}
 		<div class="default-message">
 			{defaultMessage}
 		</div>
 	{/if}
-	{#each orderMixesAlphabetically(savedMixes) as savedMix, index}
+	{#each orderMixesAlphabetically(mixesToDisplay) as savedMix, index}
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
+		<!-- svelte-ignore a11y-no-static-element-interactions -->
 		<div class="row-wrapper" on:click={loadMix(savedMix)}>
 			<CollapsableSection expanded={false}>
 				<li class="list-header" slot="header">

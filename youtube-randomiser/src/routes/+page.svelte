@@ -4,15 +4,20 @@
 
 	import GroupedPlaylistDisplay from '$lib/components/playlistDisplay/groupedPlaylistDisplay.svelte';
 	import SavedMixesDisplay from '$lib/components/playlistDisplay/savedMixesDisplay.svelte';
-	import { groupedVideoStore } from '$lib/store';
-	import { get, type Writable } from 'svelte/store';
 	import { clickOutside } from '$lib/misc/clickOutside';
+	import { savedPlaylistLSKey } from '$lib/misc/localKeys.js';
+	import { checkForIdenticalMix } from '$lib/misc/mixesUtil.js';
 	import { restringify } from '$lib/misc/util';
+	import { groupedVideoStore, savedLocalMixesStore, savedUserMixesStore } from '$lib/store';
+	import { get } from 'svelte/store';
 
-	// return from form POST request is accessible through this special form prop
-	// export let form: IPlaylistDataResponse;
-
-	// let originalIDs: string[] = [];
+	// page load data
+	export let data;
+	let loginData: ILoginData;
+	$: {
+		loginData = data.loginData;
+		savedUserMixesStore.set(data.savedUserMixes);
+	}
 
 	let groupedVideoData: IGroupedVideoData = [];
 	groupedVideoStore.subscribe((storeData) => {
@@ -20,14 +25,13 @@
 	});
 
 	let awaitingResponse = false;
-	let savedPlaylistLocalstorageKey = 'previouslyFetchedPlaylists';
 
 	const handleAddID: SubmitFunction = ({ formData, cancel, action }) => {
 		const ytMediaID = formData.get('ytMediaID') as string;
 
 		if (action.search == '?/getPlaylist') {
 			// check if playlist id has already been saved on this device
-			const savedPlaylistDataJson = localStorage.getItem(savedPlaylistLocalstorageKey);
+			const savedPlaylistDataJson = localStorage.getItem(savedPlaylistLSKey);
 
 			if (savedPlaylistDataJson != null) {
 				const savedPlaylistData: IPlaylistData | null =
@@ -76,9 +80,7 @@
 						console.log('Playlist found, status:', response.status);
 
 						if (response.status == 304) {
-							const savedPlaylistDataJson = localStorage.getItem(
-								savedPlaylistLocalstorageKey
-							) as string;
+							const savedPlaylistDataJson = localStorage.getItem(savedPlaylistLSKey) as string;
 							data = JSON.parse(savedPlaylistDataJson)[ytMediaID];
 
 							console.log('Found in localstorage and unchanged on yt:', data.playlistId);
@@ -90,11 +92,9 @@
 
 							// save playlist data to local storage
 							// localStorage.setItem(data.playlistId, JSON.stringify(data));
-							const currentLS = JSON.parse(
-								localStorage.getItem(savedPlaylistLocalstorageKey) || '{}'
-							);
+							const currentLS = JSON.parse(localStorage.getItem(savedPlaylistLSKey) || '{}');
 							const newLS = { ...currentLS, [data.playlistId]: data };
-							localStorage.setItem(savedPlaylistLocalstorageKey, JSON.stringify(newLS));
+							localStorage.setItem(savedPlaylistLSKey, JSON.stringify(newLS));
 
 							console.log('Saving to localstorage:', data.playlistId);
 
@@ -162,10 +162,9 @@
 	$: inputInvalid = !(inputIsPlaylist || inputIsVideo);
 
 	// saved mixes functionality
-	let savedMixesStore: Writable<IMix[]> | null;
 	let showPopupInput = false;
 	let mixNameInput: string;
-	const handleSaveMix = (newMixName: string) => () => {
+	const handleSaveMix = (newMixName: string, saveLocally: boolean) => async () => {
 		// do not save empty mix name
 		if (newMixName == '') {
 			// TODO: add pop up telling user to enter a name
@@ -177,40 +176,53 @@
 			mixData: groupedVideoData
 		};
 
-		if (savedMixesStore) {
-			// check that an identical mix doesnt already exist
-			const existingMix = get(savedMixesStore).find((e, i) => {
-				return checkUnorderedEquality(e.mixData, newMix.mixData);
-			});
-
-			// if there is no identical mix, update saved mixes and reset mix name input
-			if (!existingMix) {
-				console.log('Saved mix');
-				savedMixesStore?.update((currentData) => {
-					return [restringify(newMix), ...currentData];
-				});
-				showPopupInput = false;
-				mixNameInput = '';
-				return;
-			}
-
-			console.log('Identical mix already exists');
-			// TODO: add pop up telling user identical mix already exists
-			return;
+		if (saveLocally) {
+			saveMixLocally(newMix);
+		} else {
+			await saveMixToAccount(newMix);
 		}
 	};
 
-	const checkUnorderedEquality = <T>(arr1: Array<T>, arr2: Array<T>) => {
-		// check if lengths are equal
-		if (arr1.length != arr2.length) {
-			return false;
-		}
+	const saveMixLocally = (newMix: IMix) => {
+		// check that an identical mix doesnt already exist
+		const identicalMixExists = checkForIdenticalMix(newMix, get(savedLocalMixesStore));
+		// TODO: add pop up telling user identical mix already exists.
+		if (identicalMixExists) return;
 
-		// given lengths are equal, then check if each element of array 1 is in array 2
-		return arr1.every((e1) => {
-			//note: this cannot handle differently ordered nested arrays even if arrays have the same elements
-			return arr2.some((e2) => JSON.stringify(e2) == JSON.stringify(e1));
+		// if there is no identical mix, update saved mixes and reset mix name input
+		console.log('Saving mix locally');
+		savedLocalMixesStore.update((currentData) => {
+			return [restringify(newMix), ...currentData];
 		});
+		showPopupInput = false;
+		mixNameInput = '';
+	};
+
+	const saveMixToAccount = async (newMix: IMix) => {
+		// check that an identical mix doesnt already exist
+		const identicalMixExists = checkForIdenticalMix(newMix, get(savedUserMixesStore));
+		if (identicalMixExists) return;
+
+		// if there is no identical mix, update saved mixes and reset mix name input
+		console.log('Sending save mix to account request');
+		const res = await fetch('/api/mixes', { method: 'POST', body: JSON.stringify(newMix) });
+
+		switch (res.status) {
+			case 400:
+			case 401:
+			case 500:
+				return;
+
+			case 409:
+				// identical mix exists
+				return;
+
+			case 201:
+				// mix saved successfully
+				savedUserMixesStore.update((currentData) => {
+					return [restringify(newMix), ...currentData];
+				});
+		}
 	};
 </script>
 
@@ -271,7 +283,9 @@
 									}}
 								>
 									<input bind:value={mixNameInput} placeholder="Enter a name for your playlist" />
-									<button class="hover-highlight" on:click={handleSaveMix(mixNameInput)}
+									<button
+										class="hover-highlight"
+										on:click={handleSaveMix(mixNameInput, !loginData.valid)}
 										><i class="fa-solid fa-check" /></button
 									>
 								</div>
@@ -308,7 +322,7 @@
 			</div>
 			<div class="panel">
 				<div class="playlist-display-wrapper">
-					<SavedMixesDisplay savedMixesKey="savedMixes" bind:savedMixesStore />
+					<SavedMixesDisplay {loginData} />
 				</div>
 			</div>
 		</div>
@@ -471,7 +485,7 @@
 				font-size: 0.9em;
 				outline: none;
 			}
-			
+
 			input::placeholder {
 				color: var(--grey-dark);
 			}

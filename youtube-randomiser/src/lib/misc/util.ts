@@ -31,3 +31,16 @@ export const arrayMoveElement = <T>(arr: Array<T>, fromIndex: number, toIndex: n
 	}
 	return newArr;
 };
+
+export const checkUnorderedEquality = <T>(arr1: Array<T>, arr2: Array<T>) => {
+	// check if lengths are equal
+	if (arr1.length != arr2.length) {
+		return false;
+	}
+
+	// given lengths are equal, then check if each element of array 1 is in array 2
+	return arr1.every((e1) => {
+		//note: this cannot handle differently ordered nested arrays even if arrays have the same elements
+		return arr2.some((e2) => JSON.stringify(e2) == JSON.stringify(e1));
+	});
+};

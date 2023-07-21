@@ -1,12 +1,13 @@
 import { JWT_SECRET } from '$env/static/private';
-import { fail } from '@sveltejs/kit';
-import { SignJWT, jwtVerify } from 'jose';
+import { tokenCookieName } from '$lib/misc/localKeys';
+import { fail, type Cookies, json } from '@sveltejs/kit';
+import { SignJWT, decodeJwt, jwtVerify } from 'jose';
 
 export const authError = fail(401, {
 	message: 'Email/password combination does not exist or token is invalid.'
 });
 
-export const generateToken = async (userData: IUserData) => {
+export const generateToken = async (userData: IPublicUserData) => {
 	const secret = new TextEncoder().encode(JWT_SECRET);
 	const validDuration = '1h';
 	const alg = 'HS256';
@@ -29,11 +30,49 @@ export const verifyTokenSignature = async (token: string) => {
 
 	try {
 		const { payload, protectedHeader } = await jwtVerify(token, secret, {});
-		console.log(protectedHeader);
-		console.log(payload);
+		// console.log(protectedHeader);
+		// console.log(payload);
 		return true;
 	} catch (err) {
 		console.log(err);
 		return false;
 	}
+};
+
+export const decodeToken = (token: string) => {
+	const tokenData = decodeJwt(token).userData as IPublicUserData;
+	return tokenData;
+};
+
+export const validateToken = async (
+	cookies: Cookies
+): Promise<
+	| {
+			valid: false;
+			response: Response;
+	  }
+	| {
+			valid: true;
+			response: string;
+	  }
+> => {
+	const token = cookies.get(tokenCookieName);
+
+	if (!token) {
+		return {
+			valid: false,
+			response: json({ message: 'Invalid request, no token provided.' }, { status: 400 })
+		};
+	}
+
+	const tokenIsValid = await verifyTokenSignature(token);
+
+	if (!tokenIsValid) {
+		return {
+			valid: false,
+			response: json({ message: 'Invalid token, unauthorised.' }, { status: 401 })
+		};
+	}
+
+	return { valid: true, response: token };
 };
