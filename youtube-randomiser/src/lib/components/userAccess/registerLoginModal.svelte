@@ -2,6 +2,7 @@
 	import { enhance } from '$app/forms';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import Modal from '../modal.svelte';
+	import { validateEmail } from '$lib/misc/util';
 
 	export let visible: boolean;
 
@@ -12,6 +13,12 @@
 	export let formAction: string;
 
 	export let handleRequest: SubmitFunction;
+
+	let emailInput: string = '';
+	let emailIsValid: boolean;
+	$: emailIsValid = validateEmail(emailInput);
+
+	let passwordInput: string = '';
 </script>
 
 <div class="modal-wrapper" class:hidden={!visible}>
@@ -31,7 +38,10 @@
 					<span class="account-input-label">Email Address</span>
 					<span class="account-input">
 						<i class="fa-regular fa-envelope" />
-						<input name="email" />
+						<input bind:value={emailInput} name="email" />
+					</span>
+					<span class="invalid-email-label" class:hidden2={emailIsValid || emailInput.length == 0}>
+						Email is invalid
 					</span>
 				</div>
 				<!-- <div class="account-input-row">
@@ -45,10 +55,13 @@
 					<span class="account-input-label">Password</span>
 					<span class="account-input">
 						<i class="fa-solid fa-lock" />
-						<input name="password" type="password" />
+						<input bind:value={passwordInput} name="password" type="password" />
 					</span>
 				</div>
-				<button class="register-btn hover-highlight">
+				<button
+					class="register-btn hover-highlight"
+					class:disabled={!emailIsValid || passwordInput.length == 0}
+				>
 					<h4>{buttonText}</h4>
 				</button>
 			</form>
@@ -112,7 +125,7 @@
 				flex-direction: column;
 				align-items: start;
 				justify-content: center;
-				padding: 10px 40px;
+				padding: 5px 40px;
 				gap: 10px;
 
 				.account-input-label {
@@ -150,6 +163,13 @@
 					input:-webkit-autofill:focus {
 						transition: background-color 600000s 0s, color 600000s 0s;
 					}
+				}
+
+				.invalid-email-label {
+					margin-left: 5px;
+					font-size: 0.9em;
+					font-weight: bold;
+					color: #f24444;
 				}
 			}
 		}
@@ -213,5 +233,15 @@
 
 	.hidden {
 		display: none;
+	}
+
+	.hidden2 {
+		visibility: hidden;
+	}
+
+	.disabled {
+		pointer-events: none;
+		cursor: default;
+		opacity: 0.12;
 	}
 </style>

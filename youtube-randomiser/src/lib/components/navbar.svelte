@@ -44,7 +44,7 @@
 
 			// valid login, save the token
 			else if (result.data.status == 201) {
-				// reload page to validate token cookie
+				// reload page data to validate token cookie
 				invalidateAll();
 
 				// close the modal
@@ -65,7 +65,7 @@
 		// clear the current mix for user privacy upon logout
 		groupedVideoStore.set([]);
 
-		// reload page to update login state
+		// reload page data to update login state
 		invalidateAll();
 	};
 </script>
