@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import PlayerControls from '$lib/components/player/playerControls.svelte';
 	import Youtube from '$lib/components/player/youtube.svelte';
 	import MixDisplay from '$lib/components/playlistDisplay/mixDisplay.svelte';
@@ -40,13 +41,12 @@
 			videoList = shuffleArray(videoList);
 			initialVideoId = videoList[0]?.videoID || '';
 
-			if (videoList.length == 0) {
+			if (videoList.length == 0 && browser) {
 				window.location.href = './';
 			}
 		}
 	});
 
-	let playerControls: PlayerControls;
 	let mixDisplay: MixDisplay;
 
 	let searchTerm = '';
@@ -55,11 +55,10 @@
 <div class="wrapper">
 	<div class="left-wrapper">
 		<PlayerControls
-			bind:this={playerControls}
 			{player}
 			bind:videoList
 			bind:videoIndex
-			bind:mixDisplay
+			{mixDisplay}
 		/>
 		<div class="btm-panel">
 			<div class="search-bar-wrapper">

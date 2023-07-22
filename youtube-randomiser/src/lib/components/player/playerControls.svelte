@@ -81,29 +81,37 @@
 
 <div class="controls-container">
 	<div class="btn-container">
-		<button class="hover-highlight" on:click={loadPreviousVideo}>
-			<i class="fa-solid fa-backward-step" />
-		</button>
-		<button class="play-btn hover-highlight" on:click={unpauseVideo} class:hidden={!videoPaused}>
-			<i class="fa-solid fa-play" />
-		</button>
-		<button class="hover-highlight" on:click={pauseVideo} class:hidden={videoPaused}>
-			<i class="fa-solid fa-pause" />
-		</button>
-		<button class="hover-highlight" on:click={loadNextVideo}>
-			<i class="fa-solid fa-forward-step" />
-		</button>
-		<button class="hover-highlight" on:click={shuffleVideos}>
-			<i class="fa-solid fa-shuffle" />
-		</button>
-		<button class="hover-highlight" on:click={toggleLoopVideo} class:inactive={!loopVideo}>
-			<i class="fa-solid fa-repeat" />
-		</button>
-		<button class="hover-highlight">
-			<a href="./"><i class="fa-solid fa-plus" /></a>
-		</button>
+		<div class="btn-container-row">
+			<button class="hover-highlight" on:click={loadPreviousVideo}>
+				<i class="fa-solid fa-backward-step" />
+			</button>
+			<button class="play-btn hover-highlight" on:click={unpauseVideo} class:hidden={!videoPaused}>
+				<i class="fa-solid fa-play" />
+			</button>
+			<button class="hover-highlight" on:click={pauseVideo} class:hidden={videoPaused}>
+				<i class="fa-solid fa-pause" />
+			</button>
+			<button class="hover-highlight" on:click={loadNextVideo}>
+				<i class="fa-solid fa-forward-step" />
+			</button>
+		</div>
+
+		<div class="btn-container-row">
+			<button class="hover-highlight" on:click={shuffleVideos}>
+				<i class="fa-solid fa-shuffle" />
+			</button>
+			<button class="hover-highlight" on:click={toggleLoopVideo} class:inactive={!loopVideo}>
+				<i class="fa-solid fa-repeat" />
+			</button>
+			<button class="hover-highlight">
+				<a href="./"><i class="fa-solid fa-plus" /></a>
+			</button>
+		</div>
 	</div>
-	<ProgressSlider {player} />
+
+	<div class="progress-slider-wrapper">
+		<ProgressSlider {player} />
+	</div>
 </div>
 
 <style lang="scss">
@@ -115,7 +123,7 @@
 
 		display: flex;
 		flex-direction: column;
-		gap: 15px;
+		// gap: 15px;
 		justify-content: center;
 		align-items: center;
 		border-radius: 25px 25px 5px 5px;
@@ -123,29 +131,42 @@
 
 		padding: 10px 30px;
 		box-sizing: border-box;
-
 		.btn-container {
 			width: 100%;
 			display: flex;
+			flex-direction: row;
 			flex-wrap: wrap;
-			justify-content: center;
 			align-items: center;
-			gap: 3px;
+			justify-content: center;
 
-			button {
-				// min-width: 0;
-				height: 50px;
-				aspect-ratio: 1;
-				border-radius: 50%;
-				// border: 1px red solid;
-				font-size: 35px;
-			}
+			.btn-container-row {
+				// width: 100%;
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
 
-			.play-btn {
-				i {
-					padding-left: 3px;
+				button {
+					// min-width: 0;
+					height: 50px;
+					aspect-ratio: 1;
+					border-radius: 50%;
+					// border: 1px red solid;
+					font-size: 35px;
+				}
+
+				.play-btn {
+					i {
+						padding-left: 3px;
+					}
 				}
 			}
+		}
+
+		.progress-slider-wrapper {
+			margin-top: 15px;
+			width: 100%;
 		}
 	}
 
