@@ -30,3 +30,10 @@ export const savedLocalMixesStore: Writable<IMix[]> = writable(
 );
 
 export const savedUserMixesStore: Writable<IUserMix[]> = writable([]);
+
+export const toastAlertStore: Writable<{ title: string; content: string; colorMode: number }> =
+	writable({
+		title: 'Login Error',
+		content: 'No user exists with this combination of email and password.',
+		colorMode: 1
+	});

@@ -1,12 +1,13 @@
 import { tokenCookieName } from '$lib/misc/localKeys';
 import { validateEmail } from '$lib/misc/util';
-import { prisma } from '$lib/server/prisma';
 import {
 	authError,
 	generateToken,
 	hashPassword,
 	validatePassword
 } from '$lib/server/userAuthentication';
+import { Prisma } from '@prisma/client';
+import { prisma } from '$lib/server/prisma';
 import { fail, type Actions } from '@sveltejs/kit';
 
 export const actions: Actions = {
@@ -25,7 +26,7 @@ export const actions: Actions = {
 			return fail(400, { message: 'Invalid email address in sign in request.' });
 		}
 
-		const passwordHash = await hashPassword(password as string);
+		const passwordHash: string = await hashPassword(password as string);
 
 		try {
 			await prisma.user.create({
@@ -36,15 +37,19 @@ export const actions: Actions = {
 			});
 		} catch (err) {
 			console.error(err);
+			if (err instanceof Prisma.PrismaClientKnownRequestError) {
+				if (err.code == 'P2002') {
+					return fail(409, { message: 'Email already exists.' });
+				}
+			}
+
 			return fail(500, { message: 'Could not create new user.' });
 		}
 
 		const userToken = await generateToken({ email: email as string });
 		cookies.set(tokenCookieName, userToken, { path: '/' });
 
-		return {
-			status: 201
-		};
+		return { message: 'Sign up successful.' };
 	},
 
 	signInUserByEmailPassword: async ({ request, cookies }) => {
@@ -74,7 +79,7 @@ export const actions: Actions = {
 		if (passwordsMatch) {
 			const userToken = await generateToken({ email: userByEmail.email });
 			cookies.set(tokenCookieName, userToken, { path: '/' });
-			return { status: 201 };
+			return { status: 200 };
 		}
 
 		// if passwords dont match, return auth error

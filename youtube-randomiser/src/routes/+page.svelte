@@ -8,7 +8,12 @@
 	import { currentMixLSKey, savedPlaylistLSKey } from '$lib/misc/localKeys.js';
 	import { checkForIdenticalMix } from '$lib/misc/mixesUtil.js';
 	import { restringify } from '$lib/misc/util';
-	import { groupedVideoStore, savedLocalMixesStore, savedUserMixesStore } from '$lib/store';
+	import {
+		groupedVideoStore,
+		toastAlertStore,
+		savedLocalMixesStore,
+		savedUserMixesStore
+	} from '$lib/store';
 	import { get } from 'svelte/store';
 	import { browser } from '$app/environment';
 
@@ -171,8 +176,12 @@
 	let mixNameInput: string;
 	const handleSaveMix = (newMixName: string, saveLocally: boolean) => async () => {
 		// do not save empty mix name
-		if (newMixName == '') {
-			// TODO: add pop up telling user to enter a name
+		if (!newMixName) {
+			toastAlertStore.set({
+				title: 'Error',
+				content: 'Enter a mix name.',
+				colorMode: 0
+			});
 			return;
 		}
 
@@ -191,8 +200,15 @@
 	const saveMixLocally = (newMix: IMix) => {
 		// check that an identical mix doesnt already exist
 		const identicalMixExists = checkForIdenticalMix(newMix, get(savedLocalMixesStore));
-		// TODO: add pop up telling user identical mix already exists.
-		if (identicalMixExists) return;
+
+		if (identicalMixExists) {
+			toastAlertStore.set({
+				title: 'Error',
+				content: 'Identical mix already exists.',
+				colorMode: 0
+			});
+			return;
+		}
 
 		// if there is no identical mix, update saved mixes and reset mix name input
 		console.log('Saving mix locally');
@@ -201,12 +217,25 @@
 		});
 		showPopupInput = false;
 		mixNameInput = '';
+
+		toastAlertStore.set({
+			title: 'Mix Saved',
+			content: '',
+			colorMode: 1
+		});
 	};
 
 	const saveMixToAccount = async (newMix: IMix) => {
 		// check that an identical mix doesnt already exist
 		const identicalMixExists = checkForIdenticalMix(newMix, get(savedUserMixesStore));
-		if (identicalMixExists) return;
+		if (identicalMixExists) {
+			toastAlertStore.set({
+				title: 'Error',
+				content: 'Identical mix already exists.',
+				colorMode: 0
+			});
+			return;
+		}
 
 		// if there is no identical mix, update saved mixes and reset mix name input
 		console.log('Sending save mix to account request');
@@ -227,12 +256,17 @@
 				savedUserMixesStore.update((currentData) => {
 					return [restringify(newMix), ...currentData];
 				});
+
+				toastAlertStore.set({
+					title: 'Mix Saved',
+					content: '',
+					colorMode: 1
+				});
 		}
 	};
 </script>
 
 <div class="wrapper">
-	<button on:click={testhash}>test</button>
 	<h3>Mix Creator</h3>
 	<div class="video-list">
 		<div class="playlist-input">

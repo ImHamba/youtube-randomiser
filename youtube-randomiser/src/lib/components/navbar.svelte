@@ -2,7 +2,7 @@
 	import { invalidateAll } from '$app/navigation';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import RegisterLoginModal from './userAccess/registerLoginModal.svelte';
-	import { groupedVideoStore } from '$lib/store';
+	import { groupedVideoStore, toastAlertStore } from '$lib/store';
 
 	export let loginData: ILoginData;
 
@@ -17,33 +17,61 @@
 	};
 
 	const handleSignUpRequest: SubmitFunction = () => {
-		return async () => {
-			// reload page to validate token cookie
-			invalidateAll();
+		return async ({ result }) => {
+			if (result.status == 400) {
+				toastAlertStore.set({
+					title: 'Sign Up Error',
+					content: 'Invalid account data provided.',
+					colorMode: 0
+				});
+				return;
+			} else if (result.status == 409) {
+				toastAlertStore.set({
+					title: 'Sign Up Error',
+					content: 'Email already exists.',
+					colorMode: 0
+				});
+				return;
+			} else if (result.status == 200) {
+				toastAlertStore.set({
+					title: 'Sign Up Successful 🎉',
+					content: 'Welcome!',
+					colorMode: 1
+				});
 
-			signUpModalVisible = false;
+				// reload page to validate token cookie
+				invalidateAll();
+
+				signUpModalVisible = false;
+			}
 		};
 	};
 
 	const handleSignInByEmailPasswordRequest: SubmitFunction = () => {
 		return async ({ result }) => {
-			// early return if any response errors
-			if (result.type !== 'success' || result.data == null) {
-				return;
-			}
-
 			// invalid login credentials
-			if (result.data.status == 401) {
+			if (result.status == 401) {
+				toastAlertStore.set({
+					title: 'Login Error',
+					content: 'Incorrect email or password.',
+					colorMode: 0
+				});
 				return;
 			}
 
 			// invalid sign in request (missing data)
-			else if (result.data.status == 400) {
+			else if (result.status == 400) {
 				return;
 			}
 
 			// valid login, save the token
-			else if (result.data.status == 201) {
+			else if (result.status == 200) {
+				toastAlertStore.set({
+					title: 'Login Successful',
+					content: 'Welcome!',
+					colorMode: 1
+				});
+
 				// reload page data to validate token cookie
 				invalidateAll();
 
@@ -53,6 +81,7 @@
 
 			// any other status code
 			else {
+				console.log('other code');
 				return;
 			}
 		};
@@ -64,6 +93,12 @@
 
 		// clear the current mix for user privacy upon logout
 		groupedVideoStore.set([]);
+
+		toastAlertStore.set({
+			title: 'Signed out',
+			content: '',
+			colorMode: 2
+		});
 
 		// reload page data to update login state
 		invalidateAll();
@@ -102,7 +137,7 @@
 		<div class="auth">
 			<span class="auth-item">
 				<i class="fa-regular fa-circle-user" />
-				Welcome {loginData.userData.email}
+				{loginData.userData.email.split('@')[0]}
 			</span>
 			<span class="auth-item">
 				<button on:click={handleSignOut}>Sign out</button>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ToastAlert from '../lib/components/toastAlert.svelte';
 	import Navbar from '$lib/components/navbar.svelte';
 	import '../app.css';
 
@@ -12,6 +13,7 @@
 <div class="background1">
 	<div class="background2">
 		<Navbar {loginData} />
+		<ToastAlert />
 		<slot />
 	</div>
 </div>

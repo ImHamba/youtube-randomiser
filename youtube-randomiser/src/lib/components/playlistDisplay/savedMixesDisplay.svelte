@@ -1,7 +1,12 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { savedLocalMixesLSKey } from '$lib/misc/localKeys';
-	import { groupedVideoStore, savedLocalMixesStore, savedUserMixesStore } from '$lib/store';
+	import {
+		groupedVideoStore,
+		toastAlertStore,
+		savedLocalMixesStore,
+		savedUserMixesStore
+	} from '$lib/store';
 	import { get, type Writable } from 'svelte/store';
 	import CollapsableSection from '../collapsableSection.svelte';
 	import PlaylistWrapper from './playlistWrapper.svelte';
@@ -93,6 +98,12 @@
 			await fetch('/api/mixes', { method: 'DELETE', body: JSON.stringify(mixIdToDelete) });
 			invalidateAll();
 		}
+
+		toastAlertStore.set({
+			title: 'Mix Deleted',
+			content: '',
+			colorMode: 2
+		});
 	};
 
 	const loadMix = (savedMix: IMix) => () => {
