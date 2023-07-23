@@ -1,3 +1,5 @@
+import { prisma } from '$lib/server/prisma';
+
 export const getMixesByUserId = async (userId: number): Promise<IUserMix[]> => {
 	const dbMixes = await prisma.savedMixes.findMany({
 		where: {
@@ -18,4 +20,3 @@ export const getMixesByUserId = async (userId: number): Promise<IUserMix[]> => {
 
 	return userMixes;
 };
-

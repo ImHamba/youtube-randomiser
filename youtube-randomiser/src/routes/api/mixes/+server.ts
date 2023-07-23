@@ -3,6 +3,7 @@ import { getUserByEmail } from '$lib/server/dbUtils.js';
 import { getMixesByUserId } from '$lib/server/mixesServerUtil.js';
 import { decodeToken, validateToken } from '$lib/server/userAuthentication';
 import { json } from '@sveltejs/kit';
+import { prisma } from '$lib/server/prisma';
 
 export const GET = async ({ cookies }) => {
 	const tokenValidation = await validateToken(cookies);

@@ -1,6 +1,7 @@
 import { tokenCookieName } from '$lib/misc/localKeys.js';
 import { decodeToken, verifyTokenSignature } from '$lib/server/userAuthentication';
 import { json } from '@sveltejs/kit';
+import { prisma } from '$lib/server/prisma';
 
 export const POST = async ({ cookies }) => {
 	const token = cookies.get(tokenCookieName);
