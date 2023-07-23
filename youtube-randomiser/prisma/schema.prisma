@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.sqlite"
+  provider  = "postgres" //"sqlite"
+  url       = env("DATABASE_URL") //"file:./dev.sqlite"
+  directUrl = env("DATABASE_URL")
 }
 
 model User {
@@ -17,7 +18,7 @@ model User {
 }
 
 model SavedMixes {
-  mixId    Int    @id @default(autoincrement())
-  userId   Int
+  mixId   Int    @id @default(autoincrement())
+  userId  Int
   mixData String
 }
