@@ -1,8 +1,7 @@
-import { tokenCookieName } from '$lib/misc/localKeys.js';
-import { checkForIdenticalMix } from '$lib/misc/mixesUtil.js';
+import { checkForIdenticalMix, maximumSavedMixesLimit } from '$lib/misc/mixesUtil.js';
 import { getUserByEmail } from '$lib/server/dbUtils.js';
 import { getMixesByUserId } from '$lib/server/mixesServerUtil.js';
-import { decodeToken, validateToken, verifyTokenSignature } from '$lib/server/userAuthentication';
+import { decodeToken, validateToken } from '$lib/server/userAuthentication';
 import { json } from '@sveltejs/kit';
 
 export const GET = async ({ cookies }) => {
@@ -47,6 +46,10 @@ export const POST = async ({ cookies, request }) => {
 	}
 
 	const existingSavedMixes = await getMixesByUserId(userId);
+
+	if (existingSavedMixes.length >= maximumSavedMixesLimit) {
+		return json({ message: 'Maximum mix limit reached.' }, { status: 403 });
+	}
 
 	// check that an identical mix doesnt already exist
 	const identicalMixExists = checkForIdenticalMix(newMix, existingSavedMixes);

@@ -6,7 +6,7 @@
 	import SavedMixesDisplay from '$lib/components/playlistDisplay/savedMixesDisplay.svelte';
 	import { clickOutside } from '$lib/misc/clickOutside';
 	import { currentMixLSKey, savedPlaylistLSKey } from '$lib/misc/localKeys.js';
-	import { checkForIdenticalMix } from '$lib/misc/mixesUtil.js';
+	import { checkForIdenticalMix, maximumSavedMixesLimit } from '$lib/misc/mixesUtil.js';
 	import { restringify } from '$lib/misc/util';
 	import {
 		groupedVideoStore,
@@ -237,6 +237,15 @@
 			return;
 		}
 
+		// check saved mix limit hasnt been reached
+		if (get(savedUserMixesStore).length >= maximumSavedMixesLimit) {
+			toastAlertStore.set({
+				title: 'Error',
+				content: `Maximum ${maximumSavedMixesLimit} saved mixes limit reached.`,
+				colorMode: 0
+			});
+			return;
+		}
 		// if there is no identical mix, update saved mixes and reset mix name input
 		console.log('Sending save mix to account request');
 		const res = await fetch('/api/mixes', { method: 'POST', body: JSON.stringify(newMix) });
@@ -244,7 +253,9 @@
 		switch (res.status) {
 			case 400:
 			case 401:
-			case 500:
+
+			case 403:
+				// maximum mix limit reached
 				return;
 
 			case 409:
@@ -262,6 +273,9 @@
 					content: '',
 					colorMode: 1
 				});
+
+			case 500:
+				return;
 		}
 	};
 </script>

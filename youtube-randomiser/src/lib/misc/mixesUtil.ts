@@ -9,3 +9,5 @@ export const checkForIdenticalMix = (newMix: IMix, existingMixes: IMix[]) => {
 	if (existingMix) return true;
 	else return false;
 };
+
+export const maximumSavedMixesLimit = 10;
