@@ -70,7 +70,7 @@
 				<span class="divider" />
 				<span>{bottomMethodText}</span>
 				<div class="other-method-btn-wrapper">
-					<button class="other-method-btn hover-highlight">
+					<button class="other-method-btn hover-highlight" title="Google">
 						<i class="fa-brands fa-google" />
 					</button>
 				</div>

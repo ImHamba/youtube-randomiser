@@ -11,7 +11,7 @@
 {#if visible}
 	<div class="backdrop" />
 	<div class="modal" use:clickOutside on:click_outside={closeModal}>
-		<button class="close-btn" on:click={closeModal}>
+		<button class="close-btn" on:click={closeModal} title="Close">
 			<i class="fa-solid fa-xmark" />
 		</button>
 		<slot />

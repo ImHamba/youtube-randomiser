@@ -45,7 +45,11 @@
 						</div>
 						<div class="list-subtitle">Playlist • {videoGroup.data.videos.length} videos</div>
 					</div>
-					<button class="delete-btn" on:click={removeVideoGroup(videoGroup)}>
+					<button
+						class="delete-btn"
+						on:click={removeVideoGroup(videoGroup)}
+						title="Delete playlist"
+					>
 						<i class="fa-solid fa-xmark" />
 					</button>
 				</li>
@@ -59,7 +63,11 @@
 									{video.channelTitle}
 								</div>
 							</div>
-							<button class="delete-btn" on:click={removeVideoFromPlaylist(videoGroup, index)}>
+							<button
+								class="delete-btn"
+								on:click={removeVideoFromPlaylist(videoGroup, index)}
+								title="Delete video"
+							>
 								<i class="fa-solid fa-xmark" />
 							</button>
 						</li>
@@ -75,7 +83,7 @@
 						{videoGroup.data.channelTitle}
 					</div>
 				</div>
-				<button class="delete-btn" on:click={removeVideoGroup(videoGroup)}>
+				<button class="delete-btn" on:click={removeVideoGroup(videoGroup)} title="Delete video">
 					<i class="fa-solid fa-xmark" />
 				</button>
 			</li>

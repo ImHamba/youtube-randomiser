@@ -145,7 +145,7 @@
 							Mix • {countMixVideos(savedMix)} video{countMixVideos(savedMix) > 1 ? 's' : ''}
 						</div>
 					</div>
-					<button class="delete-btn" on:click|stopPropagation={removeMix(index)}>
+					<button class="delete-btn" on:click|stopPropagation={removeMix(index)} title="Delete mix">
 						<i class="fa-solid fa-xmark" />
 					</button>
 				</li>

@@ -82,28 +82,28 @@
 <div class="controls-container">
 	<div class="btn-container">
 		<div class="btn-container-row">
-			<button class="hover-highlight" on:click={loadPreviousVideo}>
+			<button class="hover-highlight" on:click={loadPreviousVideo} title="Previous video">
 				<i class="fa-solid fa-backward-step" />
 			</button>
-			<button class="play-btn hover-highlight" on:click={unpauseVideo} class:hidden={!videoPaused}>
+			<button class="play-btn hover-highlight" on:click={unpauseVideo} class:hidden={!videoPaused} title="Play">
 				<i class="fa-solid fa-play" />
 			</button>
-			<button class="hover-highlight" on:click={pauseVideo} class:hidden={videoPaused}>
+			<button class="hover-highlight" on:click={pauseVideo} class:hidden={videoPaused} title="Pause">
 				<i class="fa-solid fa-pause" />
 			</button>
-			<button class="hover-highlight" on:click={loadNextVideo}>
+			<button class="hover-highlight" on:click={loadNextVideo} title="Next video">
 				<i class="fa-solid fa-forward-step" />
 			</button>
 		</div>
 
 		<div class="btn-container-row">
-			<button class="hover-highlight" on:click={shuffleVideos}>
+			<button class="hover-highlight" on:click={shuffleVideos} title="Reshuffle">
 				<i class="fa-solid fa-shuffle" />
 			</button>
-			<button class="hover-highlight" on:click={toggleLoopVideo} class:inactive={!loopVideo}>
+			<button class="hover-highlight" on:click={toggleLoopVideo} class:inactive={!loopVideo} title="Loop video">
 				<i class="fa-solid fa-repeat" />
 			</button>
-			<button class="hover-highlight">
+			<button class="hover-highlight" title="Edit mix">
 				<a href="./"><i class="fa-solid fa-plus" /></a>
 			</button>
 		</div>

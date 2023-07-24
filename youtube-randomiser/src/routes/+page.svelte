@@ -291,6 +291,7 @@
 						class="add-btn active hover-highlight"
 						formaction="?/getPlaylist"
 						class:hidden={!inputIsPlaylist}
+						title="Add playlist"
 					>
 						<i class="fa-solid fa-plus" />
 					</button>
@@ -299,6 +300,7 @@
 						class="add-btn active hover-highlight"
 						formaction="?/getVideo"
 						class:hidden={!inputIsVideo}
+						title="Add video"
 					>
 						<i class="fa-solid fa-plus" />
 					</button>
@@ -336,18 +338,21 @@
 										showPopupInput = false;
 									}}
 								>
-									<input bind:value={mixNameInput} placeholder="Enter a name for your playlist" />
+									<input bind:value={mixNameInput} placeholder="Enter a name for your mix" />
 									<button
 										class="hover-highlight"
 										on:click={handleSaveMix(mixNameInput, !loginData.valid)}
-										><i class="fa-solid fa-check" /></button
+										title="Confirm save mix"
 									>
+										<i class="fa-solid fa-check" />
+									</button>
 								</div>
 							{/if}
 							<div class="btn-wrapper">
 								<button
 									class="shuffle-btn bottom-btn hover-highlight"
 									class:bottom-btn-disabled={groupedVideoData.length == 0}
+									title="Shuffle and play mix"
 								>
 									<a href="/player">
 										<i class="fa-solid fa-play" />
@@ -357,6 +362,7 @@
 									class="bottom-btn hover-highlight"
 									on:click={handleClearVideos}
 									class:bottom-btn-disabled={groupedVideoData.length == 0}
+									title="Clear mix"
 								>
 									<i class="fa-solid fa-trash-can" />
 								</button>
@@ -366,6 +372,7 @@
 										showPopupInput = !showPopupInput;
 									}}
 									class:bottom-btn-disabled={groupedVideoData.length == 0}
+									title="Save mix"
 								>
 									<i class="fa-solid fa-bookmark" />
 								</button>

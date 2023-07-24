@@ -10,6 +10,7 @@
 		on:click|stopPropagation={() => {
 			expanded = !expanded;
 		}}
+		title="Expand"
 	>
 		<i class="fa-solid fa-angle-down" class:rotated={expanded} />
 	</button>
