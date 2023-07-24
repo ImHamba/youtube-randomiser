@@ -103,10 +103,14 @@
 		// reload page data to update login state
 		invalidateAll();
 	};
+
+	let width: number;
 </script>
 
+<svelte:window bind:innerWidth={width} />
+
 <nav class="navbar">
-	<h2><a href="./">Youtube Randomiser</a></h2>
+	<h2><a href="./">{width >= 900 ? 'Youtube Randomiser' : 'YTR'}</a></h2>
 	<i class="fa-solid fa-shuffle" />
 	{#if !loginData.valid}
 		<div class="auth">
@@ -179,20 +183,42 @@
 			right: 40px;
 			display: flex;
 			align-items: center;
+			justify-content: center;
 			gap: 20px;
 
 			span button {
 				padding: 0px;
 				margin: 0px;
+				height: 25px;
 			}
 
 			.auth-item {
 				display: flex;
 				align-items: center;
+				justify-content: center;
 				i {
 					font-size: 25px;
 					margin-right: 10px;
 				}
+			}
+		}
+
+		@media screen and (max-width: 900px) {
+			.auth {
+				gap: 10px;
+			}
+		}
+	}
+
+	@media screen and (max-width: 900px) {
+		.navbar {
+			padding-left: 15px;
+			justify-content: start;
+			h2 {
+				font-size: 1.2em;
+			}
+			i {
+				font-size: 1.1em;
 			}
 		}
 	}

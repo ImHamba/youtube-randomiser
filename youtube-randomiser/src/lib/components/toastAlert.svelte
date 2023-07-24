@@ -54,7 +54,7 @@
 		width: $width;
 		padding: 20px 30px;
 		left: 10px;
-		top: 90px;
+		top: 20px;
 
 		display: flex;
 		flex-direction: column;

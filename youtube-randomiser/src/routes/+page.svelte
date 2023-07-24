@@ -405,6 +405,12 @@
 		margin: 0;
 	}
 
+	@media screen and (max-width: 900px) {
+		.wrapper {
+			padding: 0px;
+		}
+	}
+
 	h3 {
 		margin: 0px;
 		font-family: 'Montserrat', sans-serif;
@@ -420,6 +426,13 @@
 		min-height: 0;
 	}
 
+	@media screen and (max-width: 900px) {
+		.video-list {
+			width: 100%;
+			padding: 0px 10px 10px;
+		}
+	}
+
 	.panel-container {
 		height: 100%;
 		width: 100%;
@@ -428,16 +441,22 @@
 		min-height: 0;
 	}
 
+	@media screen and (max-width: 900px) {
+		.panel-container {
+			flex-direction: column;
+			gap: 5px;
+		}
+	}
+
 	.panel {
 		height: 100%;
 		width: 100%;
+		min-height: 0;
 	}
 
 	.playlist-display-wrapper {
 		@import './src/app.scss';
 		@include glass-background;
-		// min-height: 50px;
-		// max-height: 300px;
 		padding: 0;
 		border-radius: 25px;
 		overflow: hidden;
@@ -451,7 +470,7 @@
 
 		form {
 			display: flex;
-			// height: 100%;
+			height: 100%;
 			align-items: center;
 		}
 
@@ -461,9 +480,10 @@
 
 			border: none;
 			border-radius: 50px;
+			padding: 0px;
 			padding-left: 15px;
 			width: 100%;
-			height: 40px;
+			height: 100%;
 			font-size: 0.9em;
 			// color: var(--txt-light);
 			outline: none;
@@ -494,6 +514,15 @@
 			}
 		}
 
+		@media screen and (max-width: 900px) {
+			.add-btn {
+				height: 35px;
+				i {
+					font-size: 25px;
+				}
+			}
+		}
+
 		.active {
 			opacity: 0.6;
 		}
@@ -518,6 +547,12 @@
 			to {
 				transform: rotate(360deg);
 			}
+		}
+	}
+
+	@media screen and (max-width: 900px) {
+		.playlist-input {
+			margin: 5px 0px;
 		}
 	}
 
@@ -565,6 +600,7 @@
 
 		.btn-wrapper {
 			display: flex;
+			padding: 5px;
 
 			.shuffle-btn a {
 				width: 100%;
@@ -585,12 +621,22 @@
 				align-items: center;
 				justify-content: center;
 				opacity: 1;
+				border-radius: 100px;
+
 				i {
 					font-size: 25px;
 					vertical-align: middle;
 					// margin-right: 5px;
 				}
-				border-radius: 100px;
+			}
+
+			@media screen and (max-width: 900px) {
+				.bottom-btn {
+					height: 35px;
+					i {
+						font-size: 20px;
+					}
+				}
 			}
 
 			.bottom-btn-disabled {

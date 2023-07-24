@@ -187,6 +187,12 @@
 		background-position: center center;
 	}
 
+	@media screen and (max-width: 900px) {
+		.thumbnail {
+			height: 60px;
+		}
+	}
+
 	.list-info {
 		display: flex;
 		flex-direction: column;

@@ -85,10 +85,20 @@
 			<button class="hover-highlight" on:click={loadPreviousVideo} title="Previous video">
 				<i class="fa-solid fa-backward-step" />
 			</button>
-			<button class="play-btn hover-highlight" on:click={unpauseVideo} class:hidden={!videoPaused} title="Play">
+			<button
+				class="play-btn hover-highlight"
+				on:click={unpauseVideo}
+				class:hidden={!videoPaused}
+				title="Play"
+			>
 				<i class="fa-solid fa-play" />
 			</button>
-			<button class="hover-highlight" on:click={pauseVideo} class:hidden={videoPaused} title="Pause">
+			<button
+				class="hover-highlight"
+				on:click={pauseVideo}
+				class:hidden={videoPaused}
+				title="Pause"
+			>
 				<i class="fa-solid fa-pause" />
 			</button>
 			<button class="hover-highlight" on:click={loadNextVideo} title="Next video">
@@ -100,7 +110,12 @@
 			<button class="hover-highlight" on:click={shuffleVideos} title="Reshuffle">
 				<i class="fa-solid fa-shuffle" />
 			</button>
-			<button class="hover-highlight" on:click={toggleLoopVideo} class:inactive={!loopVideo} title="Loop video">
+			<button
+				class="hover-highlight"
+				on:click={toggleLoopVideo}
+				class:inactive={!loopVideo}
+				title="Loop video"
+			>
 				<i class="fa-solid fa-repeat" />
 			</button>
 			<button class="hover-highlight" title="Edit mix">
@@ -131,6 +146,7 @@
 
 		padding: 10px 30px;
 		box-sizing: border-box;
+
 		.btn-container {
 			width: 100%;
 			display: flex;
@@ -167,6 +183,26 @@
 		.progress-slider-wrapper {
 			margin-top: 15px;
 			width: 100%;
+		}
+	}
+
+	@media screen and (max-width: 900px) {
+		.controls-container {
+			padding: 10px 10px 0px;
+
+			.btn-container {
+				flex-wrap: nowrap;
+
+				.btn-container-row {
+					flex-wrap: nowrap;
+
+					button {
+						// min-width: 0;
+						height: 30px;
+						font-size: 25px;
+					}
+				}
+			}
 		}
 	}
 

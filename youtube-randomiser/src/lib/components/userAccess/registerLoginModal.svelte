@@ -85,8 +85,8 @@
 		box-sizing: border-box;
 	}
 	.modal-wrapper {
-		width: min(500px, 90%);
-		height: min(700px, 90%);
+		width: min(500px, calc(100% - 20px));
+		height: min(700px, calc(100% - 20px));
 
 		position: fixed;
 		float: left;
@@ -170,6 +170,12 @@
 					font-size: 0.9em;
 					font-weight: bold;
 					color: #f24444;
+				}
+			}
+
+			@media screen and (max-width: 500px) {
+				.account-input-row {
+					padding: 5px 20px;
 				}
 			}
 		}

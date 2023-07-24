@@ -47,6 +47,16 @@
 		}
 	}
 
+	@media screen and (max-width: 900px) {
+		.heading {
+			padding: 13px 0px 5px;
+
+			h4 {
+				font-size: 1.1em;
+			}
+		}
+	}
+
 	.playlist-display {
 		height: 100%;
 		width: 100%;
@@ -82,7 +92,7 @@
 	}
 
 	.btm-bar {
-		padding: 5px;
+		padding: 0px;
 		width: 100%;
 		display: flex;
 		align-items: center;
