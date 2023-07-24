@@ -158,7 +158,7 @@
 	}
 
 	.hidden {
-		visibility: hidden;
+		display: none;
 	}
 
 	@media screen and (min-width: 900px) {
