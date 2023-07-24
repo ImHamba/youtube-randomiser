@@ -30,7 +30,7 @@
 		return videoList;
 	};
 
-	let groupedVideoData: IGroupedVideoData = [];
+	let groupedVideoData: IGroupedVideoData;
 	groupedVideoStore.subscribe((storeData) => {
 		groupedVideoData = storeData;
 		videoList = extractFromGroupedVideoData(storeData);
@@ -51,11 +51,24 @@
 
 	let searchTerm = '';
 
-	let collapsed = true;
+	let width: number = 0;
+	let collapsed: boolean;
+
+	// initialise collapsed
+	if (width < 900) collapsed = true;
+	else collapsed = false;
+
+	// updated collapsed if screen size changes
+	$: if (width >= 900) {
+		collapsed = false;
+	}
+
 	const hidePlaylist = () => {
 		collapsed = !collapsed;
 	};
 </script>
+
+<svelte:window bind:innerWidth={width} />
 
 <div class="wrapper">
 	<div class="left-wrapper" class:playlist-collapsed={collapsed}>
@@ -134,22 +147,6 @@
 
 		border-radius: 5px 5px 25px 25px;
 		height: 100%;
-
-		.playlist-expand {
-			position: absolute;
-			bottom: 0;
-			padding: 0;
-			width: 100%;
-			background: linear-gradient(to top, #ededed60 0%, transparent 100%);
-			height: 20px;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			i {
-				font-size: 20px;
-				transition: transform 100ms linear;
-			}
-		}
 	}
 
 	.rotated {
@@ -168,6 +165,25 @@
 		.playlist-expand {
 			display: none;
 			padding: 0;
+		}
+	}
+
+	@media screen and (max-width: 900px) {
+		.playlist-expand {
+			position: absolute;
+			bottom: 0;
+			padding: 0;
+			width: 100%;
+			background: linear-gradient(to top, #ededed60 0%, transparent 100%);
+			height: 20px;
+
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			i {
+				font-size: 20px;
+				transition: transform 100ms linear;
+			}
 		}
 	}
 
