@@ -26,7 +26,7 @@ export const GET = async ({ cookies }) => {
 };
 
 export const POST = async ({ cookies, request }) => {
-	const newMix: IMix = await request.json();
+	const newMix: IUserMix = await request.json();
 	if (!newMix) {
 		console.log(400);
 		return json('Invalid request, no mix provided.', { status: 400 });
@@ -63,7 +63,7 @@ export const POST = async ({ cookies, request }) => {
 		await prisma.savedMixes.create({
 			data: {
 				userId: userId,
-				mixData: JSON.stringify(newMix)
+				mixData: newMix
 			}
 		});
 	} catch (err) {

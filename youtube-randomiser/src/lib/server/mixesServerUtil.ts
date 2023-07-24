@@ -10,7 +10,7 @@ export const getMixesByUserId = async (userId: number): Promise<IUserMix[]> => {
 	// map database results into an array of user mixes
 	const userMixes: IUserMix[] = dbMixes.map((mixDbResult) => {
 		{
-			const mixData: IMix = JSON.parse(mixDbResult.mixData);
+			const mixData: IMix = mixDbResult.mixData;
 			return {
 				mixId: mixDbResult.mixId,
 				...mixData
