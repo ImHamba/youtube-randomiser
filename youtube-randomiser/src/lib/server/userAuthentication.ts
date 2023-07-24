@@ -13,7 +13,7 @@ export const authError = fail(401, {
 
 export const generateToken = async (userData: IPublicUserData) => {
 	const secret = new TextEncoder().encode(JWT_SECRET);
-	const validDuration = '1h';
+	const validDuration = '7d';
 	const alg = 'HS256';
 
 	const jwt = await new SignJWT({ userData: userData })
