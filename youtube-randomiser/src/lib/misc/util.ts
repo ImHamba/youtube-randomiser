@@ -49,3 +49,7 @@ export const validateEmail = (email: string) => {
 	const re = /^\S+@\S+\.\S+$/;
 	return re.test(email);
 };
+
+export const appendDemoParam = (baseUrl: string, showDemo: boolean) => {
+	return baseUrl + (showDemo ? '?demo=true' : '');
+};

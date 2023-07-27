@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getCurrentVideoId, loadVideo } from '$lib/misc/playerUtil';
-	import { shuffleArray } from '$lib/misc/util';
+	import { appendDemoParam, shuffleArray } from '$lib/misc/util';
 	import { onMount } from 'svelte';
 	import type MixDisplay from '../playlistDisplay/mixDisplay.svelte';
 	import ProgressSlider from './progressSlider.svelte';
@@ -9,6 +9,8 @@
 	export let videoList: IVideoData[];
 	export let videoIndex: number;
 	export let mixDisplay: MixDisplay;
+
+	export let showDemo: boolean;
 
 	onMount(() => {
 		const endedInterval = setInterval(() => {
@@ -119,7 +121,7 @@
 				<i class="fa-solid fa-repeat" />
 			</button>
 			<button class="hover-highlight" title="Edit mix">
-				<a href="./"><i class="fa-solid fa-plus" /></a>
+				<a href={appendDemoParam('./', showDemo)}><i class="fa-solid fa-plus" /></a>
 			</button>
 		</div>
 	</div>

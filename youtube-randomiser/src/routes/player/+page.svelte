@@ -6,6 +6,9 @@
 	import { shuffleArray } from '$lib/misc/util';
 	import { groupedVideoStore } from '$lib/store';
 
+	export let data;
+	const showDemo = data.showDemo;
+
 	let videoList: IVideoData[] = [];
 	let videoListInitialised = false;
 	let videoIndex: number = 0;
@@ -72,7 +75,7 @@
 
 <div class="wrapper">
 	<div class="left-wrapper" class:playlist-collapsed={collapsed}>
-		<PlayerControls {player} bind:videoList bind:videoIndex {mixDisplay} />
+		<PlayerControls {player} bind:videoList bind:videoIndex {mixDisplay} {showDemo} />
 		<div class="btm-panel">
 			<div class="search-bar-wrapper" class:hidden={collapsed}>
 				<div class="search-bar">

@@ -3,6 +3,8 @@
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import RegisterLoginModal from './userAccess/registerLoginModal.svelte';
 	import { groupedVideoStore, toastAlertStore } from '$lib/store';
+	import { page } from '$app/stores';
+	import { appendDemoParam } from '$lib/misc/util';
 
 	export let loginData: ILoginData;
 	export let showDemo: boolean;
@@ -118,7 +120,9 @@
 <svelte:window bind:innerWidth={width} />
 
 <nav class="navbar">
-	<h2><a href="./">{width >= 900 ? 'Youtube Randomiser' : 'YTR'}</a></h2>
+	<h2>
+		<a href={appendDemoParam('./', showDemo)}>{width >= 900 ? 'Youtube Randomiser' : 'YTR'}</a>
+	</h2>
 	<i class="fa-solid fa-shuffle" />
 	{#if !loginData.valid}
 		<div class="auth">

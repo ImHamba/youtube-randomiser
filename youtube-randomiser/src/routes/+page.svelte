@@ -7,7 +7,7 @@
 	import { clickOutside } from '$lib/misc/clickOutside';
 	import { currentMixLSKey, savedPlaylistLSKey } from '$lib/misc/localKeys.js';
 	import { checkForIdenticalMix, maximumSavedMixesLimit } from '$lib/misc/mixesUtil.js';
-	import { restringify } from '$lib/misc/util';
+	import { appendDemoParam, restringify } from '$lib/misc/util';
 	import {
 		groupedVideoStore,
 		toastAlertStore,
@@ -362,7 +362,7 @@
 									class:bottom-btn-disabled={groupedVideoData.length == 0}
 									title="Shuffle and play mix"
 								>
-									<a href="/player">
+									<a href={appendDemoParam('/player', showDemo)}>
 										<i class="fa-solid fa-play" />
 									</a>
 								</button>
@@ -621,14 +621,17 @@
 			display: flex;
 			padding: 5px;
 
-			.shuffle-btn a {
-				width: 100%;
-				height: 100%;
-				margin-left: 2px;
-				text-decoration: none;
-				display: flex;
-				align-items: center;
-				justify-content: center;
+			.shuffle-btn {
+				padding: 0;
+				a {
+					width: 100%;
+					height: 100%;
+					margin-left: 2px;
+					text-decoration: none;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+				}
 			}
 
 			.bottom-btn {
@@ -643,6 +646,7 @@
 				border-radius: 100px;
 
 				i {
+					width: 100%;
 					font-size: 25px;
 					vertical-align: middle;
 					// margin-right: 5px;

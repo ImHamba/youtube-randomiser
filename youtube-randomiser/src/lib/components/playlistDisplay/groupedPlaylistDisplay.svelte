@@ -5,6 +5,7 @@
 	export let groupedVideoData: IGroupedVideoData;
 	export let defaultMessage = '';
 
+
 	const removeVideoGroup = (videoGroup: IVideoGroup) => () => {
 		groupedVideoStore.set(groupedVideoData.filter((e) => e !== videoGroup));
 	};

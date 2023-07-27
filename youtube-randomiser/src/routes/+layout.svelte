@@ -23,7 +23,7 @@
 			<Modal bind:visible={modalVisible}>
 				<div class="content-wrapper">
 					<h2>Youtube Randomiser Demo</h2>
-					<div class="demo-text">
+					<div class:demo-text={true}>
 						<p>Welcome! It looks like you've come from my portfolio site.</p>
 						<p>
 							This website lets users create shuffled mixes of Youtube playlists and videos since
@@ -34,7 +34,7 @@
 						<ul>
 							<li>
 								Autofill an example Youtube playlist ID by clicking the
-								<span class="highlight">Demo fill</span>
+								<span class:highlight={true}>Demo fill</span>
 								button next to the input bar.
 							</li>
 							<li>
@@ -47,7 +47,7 @@
 							</li>
 							<li>
 								Access a demo account by clicking the
-								<span class="highlight">Demo sign in</span>
+								<span class:highlight={true}>Demo sign in</span>
 								button at the top right.
 							</li>
 						</ul>
@@ -112,7 +112,7 @@
 	}
 
 	.demo-text {
-		text-align: start;
+		text-align: left;
 	}
 
 	.highlight {
