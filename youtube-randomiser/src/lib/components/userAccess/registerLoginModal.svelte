@@ -3,6 +3,7 @@
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import Modal from '../modal.svelte';
 	import { validateEmail } from '$lib/misc/util';
+	import { PUBLIC_DEMO_EMAIL, PUBLIC_DEMO_PASSWORD } from '$env/static/public';
 
 	export let visible: boolean;
 
@@ -12,13 +13,30 @@
 	export let bottomMethodText = '';
 	export let formAction: string;
 
+	export let showDemo = false;
+
 	export let handleRequest: SubmitFunction;
 
-	let emailInput: string = '';
+	// wraps the prop provided submit function in order to also set awaitingResponse at the correct times
+	const handleSubmit: SubmitFunction = (event) => {
+		awaitingResponse = true;
+
+		const finish = handleRequest(event);
+
+		return async (event) => {
+			awaitingResponse = false;
+			await finish(event);
+		};
+	};
+
+	let emailInput: string = showDemo ? PUBLIC_DEMO_EMAIL : '';
 	let emailIsValid: boolean;
 	$: emailIsValid = validateEmail(emailInput);
 
-	let passwordInput: string = '';
+	let passwordInput: string = showDemo ? PUBLIC_DEMO_PASSWORD : '';
+
+	let awaitingResponse = false;
+	$: console.log(awaitingResponse);
 </script>
 
 <div class="modal-wrapper" class:hidden={!visible}>
@@ -32,7 +50,7 @@
 				class="account-input-section"
 				method="POST"
 				action={formAction}
-				use:enhance={handleRequest}
+				use:enhance={handleSubmit}
 			>
 				<div class="account-input-row">
 					<span class="account-input-label">Email Address</span>
@@ -62,7 +80,11 @@
 					class="register-btn hover-highlight"
 					class:disabled={!emailIsValid || passwordInput.length == 0}
 				>
-					<h4>{buttonText}</h4>
+					{#if !awaitingResponse}
+						<h4>{buttonText}</h4>
+					{:else}
+						<i class="fa-solid fa-circle-notch waiting-spinner" />
+					{/if}
 				</button>
 			</form>
 
@@ -198,6 +220,22 @@
 			h4 {
 				font-size: medium;
 				margin: 0px;
+			}
+
+			.waiting-spinner {
+				opacity: 0.6;
+				animation: spin 2s linear infinite;
+
+				font-size: 20px;
+			}
+
+			@keyframes spin {
+				from {
+					transform: rotate(0deg);
+				}
+				to {
+					transform: rotate(360deg);
+				}
 			}
 		}
 

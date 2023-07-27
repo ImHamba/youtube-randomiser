@@ -19,6 +19,7 @@
 
 	// page load data
 	export let data;
+	const showDemo = data.showDemo;
 	let loginData: ILoginData;
 	$: {
 		loginData = data.loginData;
@@ -278,6 +279,10 @@
 				return;
 		}
 	};
+
+	const handleFillDemo = () => {
+		input = 'PL0vfts4VzfNjnYhJMfTulea5McZbQLM7G';
+	};
 </script>
 
 <div class="wrapper">
@@ -320,6 +325,10 @@
 					placeholder="Enter a Youtube playlist or video ID"
 					bind:value={input}
 				/>
+
+				{#if showDemo}
+					<button class="demo-fill-btn" on:click|preventDefault={handleFillDemo}>Demo fill</button>
+				{/if}
 			</form>
 		</div>
 		<div class="panel-container">
@@ -521,6 +530,17 @@
 					font-size: 25px;
 				}
 			}
+		}
+
+		.demo-fill-btn {
+			background-image: linear-gradient(to right, #ff512f 0%, #dd2476 100%);
+			white-space: nowrap;
+			height: 100%;
+			margin-left: 20px;
+			padding: 10px 15px;
+			box-shadow: 0 0 20px #ffffff60;
+			border-radius: 100px;
+			animation: bounce 10s 2s infinite linear;
 		}
 
 		.active {

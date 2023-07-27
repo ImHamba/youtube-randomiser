@@ -5,6 +5,7 @@
 	import { groupedVideoStore, toastAlertStore } from '$lib/store';
 
 	export let loginData: ILoginData;
+	export let showDemo: boolean;
 
 	let signUpModalVisible = false;
 	let signInModalVisible = false;
@@ -13,6 +14,10 @@
 		signUpModalVisible = true;
 	};
 	const handleOpenSignIn = () => {
+		signInModalVisible = true;
+	};
+
+	const handleOpenDemoSignIn = () => {
 		signInModalVisible = true;
 	};
 
@@ -114,6 +119,9 @@
 	<i class="fa-solid fa-shuffle" />
 	{#if !loginData.valid}
 		<div class="auth">
+			{#if showDemo}
+				<span><button class="demo-btn" on:click={handleOpenDemoSignIn}>Demo sign in</button></span>
+			{/if}
 			<span><button on:click={handleOpenSignUp}>Sign up</button></span>
 			<span><button on:click={handleOpenSignIn}>Sign in</button></span>
 		</div>
@@ -136,6 +144,7 @@
 			bottomMethodText="Or sign in with a different method"
 			formAction="/api/userAuth?/signInUserByEmailPassword"
 			handleRequest={handleSignInByEmailPasswordRequest}
+			showDemo={true}
 		/>
 	{:else}
 		<div class="auth">
@@ -199,6 +208,42 @@
 				i {
 					font-size: 25px;
 					margin-right: 10px;
+				}
+			}
+
+			.demo-btn {
+				background-image: linear-gradient(to right, #ff512f 0%, #dd2476 100%);
+				height: fit-content;
+				padding: 10px 15px;
+				box-shadow: 0 0 20px #ffffff60;
+				border-radius: 100px;
+				animation: bounce 10s 2s infinite linear;
+			}
+
+			@keyframes bounce {
+				0% {
+					transform: translateX(0px);
+				}
+
+				1% {
+					transform: translateX(5px);
+				}
+
+				2% {
+					transform: translateX(-5px);
+				}
+
+				3% {
+					transform: translateX(5px);
+				}
+
+				4% {
+					transform: translateX(-5px);
+				}
+
+				5%,
+				100% {
+					transform: translateX(0px);
 				}
 			}
 		}
