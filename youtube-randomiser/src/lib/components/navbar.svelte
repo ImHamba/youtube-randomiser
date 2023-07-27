@@ -6,6 +6,7 @@
 
 	export let loginData: ILoginData;
 	export let showDemo: boolean;
+	let signInDemo: boolean;
 
 	let signUpModalVisible = false;
 	let signInModalVisible = false;
@@ -14,10 +15,12 @@
 		signUpModalVisible = true;
 	};
 	const handleOpenSignIn = () => {
+		signInDemo = false;
 		signInModalVisible = true;
 	};
 
 	const handleOpenDemoSignIn = () => {
+		signInDemo = true;
 		signInModalVisible = true;
 	};
 
@@ -144,7 +147,7 @@
 			bottomMethodText="Or sign in with a different method"
 			formAction="/api/userAuth?/signInUserByEmailPassword"
 			handleRequest={handleSignInByEmailPasswordRequest}
-			showDemo={true}
+			bind:showDemo={signInDemo}
 		/>
 	{:else}
 		<div class="auth">

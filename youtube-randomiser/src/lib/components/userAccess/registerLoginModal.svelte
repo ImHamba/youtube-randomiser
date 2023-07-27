@@ -35,6 +35,12 @@
 
 	let passwordInput: string = showDemo ? PUBLIC_DEMO_PASSWORD : '';
 
+	$: {
+		visible;
+		emailInput = showDemo ? PUBLIC_DEMO_EMAIL : '';
+		passwordInput = showDemo ? PUBLIC_DEMO_PASSWORD : '';
+	}
+
 	let awaitingResponse = false;
 </script>
 
