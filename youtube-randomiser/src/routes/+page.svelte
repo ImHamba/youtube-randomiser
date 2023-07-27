@@ -16,6 +16,7 @@
 	} from '$lib/store';
 	import { get } from 'svelte/store';
 	import { browser } from '$app/environment';
+	import { invalidateAll } from '$app/navigation';
 
 	// page load data
 	export let data;
@@ -264,10 +265,8 @@
 				return;
 
 			case 201:
-				// mix saved successfully
-				savedUserMixesStore.update((currentData) => {
-					return [restringify(newMix), ...currentData];
-				});
+				// mix saved successfully, reload mixes
+				invalidateAll();
 
 				toastAlertStore.set({
 					title: 'Mix Saved',

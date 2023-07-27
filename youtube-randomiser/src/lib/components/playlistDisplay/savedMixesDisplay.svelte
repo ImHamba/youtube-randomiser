@@ -94,7 +94,11 @@
 
 		// if user logged in, send request to server to delete from account by mix id
 		else {
+			console.log(get(savedUserMixesStore));
+			console.log(mixIndex);
+			console.log(get(savedUserMixesStore)[mixIndex]);
 			const mixIdToDelete = get(savedUserMixesStore)[mixIndex].mixId;
+			console.log(mixIdToDelete);
 			await fetch('/api/mixes', { method: 'DELETE', body: JSON.stringify(mixIdToDelete) });
 			invalidateAll();
 		}

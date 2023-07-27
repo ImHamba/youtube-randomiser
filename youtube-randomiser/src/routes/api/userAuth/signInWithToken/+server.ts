@@ -8,7 +8,7 @@ export const POST = async ({ cookies }) => {
 
 	// ensure token was sent
 	if (!token) {
-		return json({ message: 'Invalid request, no token provided.' }, { status: 400 });
+		return json({ message: 'Unauthorised, no token provided.' }, { status: 401 });
 	}
 
 	// check signature of token

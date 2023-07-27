@@ -36,7 +36,6 @@
 	let passwordInput: string = showDemo ? PUBLIC_DEMO_PASSWORD : '';
 
 	let awaitingResponse = false;
-	$: console.log(awaitingResponse);
 </script>
 
 <div class="modal-wrapper" class:hidden={!visible}>

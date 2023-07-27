@@ -65,7 +65,7 @@ export const validateToken = async (
 	if (!token) {
 		return {
 			valid: false,
-			response: json({ message: 'Invalid request, no token provided.' }, { status: 400 })
+			response: json({ message: 'Invalid request, no token provided.' }, { status: 401 })
 		};
 	}
 
@@ -74,7 +74,7 @@ export const validateToken = async (
 	if (!tokenIsValid) {
 		return {
 			valid: false,
-			response: json({ message: 'Invalid token, unauthorised.' }, { status: 401 })
+			response: json({ message: 'Tampered token, unauthorised.' }, { status: 401 })
 		};
 	}
 
