@@ -18,7 +18,7 @@
   <summary>Table of Contents</summary>
   <ol>
     <li>
-      <a href="#about-the-project">About The Project</a>
+      <a href="#about">About</a>
       <ul>
         <li><a href="#built-with">Built With</a></li>
       </ul>
@@ -69,11 +69,15 @@ Follow the below steps to run the web app locally.
     ```sh
     git clone https://github.com/ImHamba/youtube-randomiser.git
     ```
-2. Install NPM packages
+2. Move into youtube-randomiser subdirectory
+    ```sh
+    cd youtube-randomiser/youtube-randomiser
+    ```
+3. Install NPM packages
     ```sh
     npm install
     ```
-3. Build and run
+4. Build and run
     ```sh
     npm run build
     ```
@@ -110,7 +114,7 @@ Distributed under the MIT License. See `LICENSE` file for more information.
 
 ## Contact
 
-Contact me here on Github
+Contact me here on Github!
 
 Project Link: [https://github.com/ImHamba/youtube-randomiser](https://github.com/ImHamba/youtube-randomiser)
 
